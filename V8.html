@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<title>Pocket Doctor — v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════ PHONE SHELL ═══════════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Roboto',sans-serif;background:#f4f6fb;overflow-x:hidden;margin:0;padding:0}
+
+
+/* ═══════════════ APP SHELL ═════════════════════════════════════════════ */
+.app{width:100%;height:100vh;display:flex;flex-direction:column;overflow:hidden;background:#f4f6fb;font-family:'Roboto',sans-serif;position:relative}
+.screen{flex:1;overflow-y:auto;overflow-x:hidden;display:none;flex-direction:column;padding-bottom:84px}
+.screen.active{display:flex}
+.screen::-webkit-scrollbar{display:none}
+
+/* ═══════════════ MD3 DESIGN TOKENS ════════════════════════════════════ */
+:root{
+  --primary:#09287B;--primary-light:#3D5BA8;--primary-dark:#040F3A;--primary-cont:#E8EDF8;
+  --secondary:#00E1FA;--secondary-dark:#00A8BB;
+  --error:#AC0505;--error-light:#FFEDED;
+  --warning:#FF9900;--warning-text:#7A4500;--warning-light:#FFF3E0;
+  --success:#0A9316;--success-light:#E6F7E7;
+  --surface:#FFFFFF;--surface-2:#F4F6FB;--surface-3:#E8EDF8;
+  --on-surface:#09287B;--on-s2:#3D5BA8;--on-s3:#5A6E96;
+  --outline:#C5CEEA;--scrim:rgba(4,15,58,.6);
+  --r-full:999px;--r-lg:16px;--r-md:12px;--r-sm:4px;
+  --shadow:4px 12px 12px rgba(9,40,123,.13);--shadow-sm:2px 6px 10px rgba(9,40,123,.09);
+  --ff:'Roboto',sans-serif;
+  /* ── UXGreen / tendency v1026 ───────────────────────── */
+  --tendency-accent:#00C896;
+  --tendency-id:'UXGreen/tendency@1026';
+}
+
+/* ═══════════════ STATUS BAR ════════════════════════════════════════════ */
+.status-bar{height:44px;background:var(--primary);display:flex;align-items:center;padding:0 22px;justify-content:space-between;flex-shrink:0}
+.sb-time{font-size:15px;font-weight:700;color:#fff;letter-spacing:.02em}
+.sb-icons{display:flex;gap:5px;align-items:center}
+
+/* ═══════════════ MD3 TOP APP BAR ═══════════════════════════════════════ */
+.top-bar{background:var(--primary);padding:10px 16px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.tb-back{width:40px;height:40px;border-radius:var(--r-full);background:rgba(255,255,255,.12);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;transition:background .15s}
+.tb-back:hover{background:rgba(255,255,255,.22)}
+.tb-titles{flex:1;min-width:0}
+.tb-title{font-size:22px;font-weight:900;color:#fff;letter-spacing:-.01em;line-height:1.1}
+.tb-sub{font-size:12px;color:rgba(255,255,255,.65);margin-top:2px;font-weight:400}
+.tb-actions{display:flex;gap:4px}
+.tb-action{width:40px;height:40px;border-radius:var(--r-full);background:rgba(255,255,255,.12);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;transition:background .15s}
+.tb-action:hover{background:rgba(255,255,255,.22)}
+
+/* ═══════════════ BOTTOM NAV (MD3) — CONSISTENT 4 TABS ════════════════ */
+.nav-bar{position:absolute;bottom:0;left:0;right:0;height:84px;background:var(--surface);border-top:1px solid var(--outline);display:grid;grid-template-columns:repeat(4,1fr);align-items:center;z-index:20;display:none}
+.nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;border:none;background:transparent;padding:8px 4px;min-height:76px;position:relative}
+.nav-pill{width:64px;height:32px;border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;transition:background .2s}
+.nav-item.active .nav-pill{background:var(--primary-cont)}
+.nav-ico{color:var(--on-s3);transition:color .2s}
+.nav-item.active .nav-ico{color:var(--primary)}
+.nav-lbl{font-size:12px;font-weight:500;color:var(--on-s3);letter-spacing:.01em;transition:color .2s}
+.nav-item.active .nav-lbl{color:var(--primary);font-weight:700}
+.nav-item:hover:not(.active) .nav-pill{background:rgba(9,40,123,.06)}
+
+/* ═══════════════ MD3 CARDS ══════════════════════════════════════════════ */
+.md-card{background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);margin:0 16px 12px;overflow:hidden}
+.md-card-tonal{background:var(--primary-cont);border-radius:var(--r-lg);margin:0 16px 12px;overflow:hidden}
+.md-card-outlined{background:var(--surface);border:1px solid var(--outline);border-radius:var(--r-lg);margin:0 16px 12px;overflow:hidden}
+
+/* ═══════════════ MD3 LIST ITEM ══════════════════════════════════════════ */
+.list-item{display:flex;align-items:center;gap:16px;padding:16px;cursor:pointer;transition:background .15s;min-height:72px}
+.list-item:hover{background:rgba(9,40,123,.04)}
+.list-item+.list-item{border-top:1px solid var(--outline)}
+.li-lead{width:44px;height:44px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.li-body{flex:1;min-width:0}
+.li-h{font-size:16px;font-weight:500;color:var(--on-surface)}
+.li-s{font-size:14px;color:var(--on-s3);margin-top:2px}
+.li-trail{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+
+/* ═══════════════ MD3 CHIP ════════════════════════════════════════════════ */
+.chip{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r-full);font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--outline);background:var(--surface);color:var(--on-s2);transition:all .15s;white-space:nowrap;min-height:36px}
+.chip:hover{background:rgba(9,40,123,.06)}
+.chip.sel{background:var(--primary);color:#fff;border-color:var(--primary)}
+.chip.tonal{background:var(--primary-cont);color:var(--primary);border-color:transparent}
+.chip.green{background:var(--success);color:#fff;border-color:var(--success)}
+.chip.orange{background:#FFF3E0;color:#7A4500;border-color:#E8A020}
+.chip.red{background:var(--error);color:#fff;border-color:var(--error)}
+.chip.gray{color:var(--on-s3);border-color:var(--on-s3)}
+
+/* ═══════════════ MD3 BUTTONS ════════════════════════════════════════════ */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:60px;border-radius:var(--r-full);border:none;cursor:pointer;font-size:16px;font-weight:700;font-family:var(--ff);letter-spacing:.01em;transition:opacity .15s}
+.btn:disabled{opacity:.38;cursor:not-allowed}
+.btn-filled{background:var(--primary);color:#fff;box-shadow:var(--shadow-sm)}
+.btn-filled.green{background:var(--success)}
+.btn-tonal{background:var(--primary-cont);color:var(--primary)}
+.btn-outlined{background:transparent;color:var(--primary);border:2px solid var(--primary)}
+.btn-text{background:transparent;color:var(--primary);height:48px}
+.btn-sm{height:48px;font-size:14px}
+
+/* ═══════════════ MD3 TEXT FIELDS ════════════════════════════════════════ */
+.tf{margin-bottom:20px}
+.tf label{display:block;font-size:13px;font-weight:500;color:var(--primary);margin-bottom:6px;letter-spacing:.02em}
+.tf input,.tf select,.tf textarea{width:100%;padding:16px 18px;background:var(--surface-3);border:none;border-bottom:2px solid var(--primary-light);border-radius:var(--r-sm) var(--r-sm) 0 0;font-size:16px;font-family:var(--ff);color:var(--on-surface);outline:none;transition:all .15s}
+.tf input:focus,.tf select:focus,.tf textarea:focus{border-bottom-color:var(--primary);background:var(--surface)}
+.tf select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2309287B' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;background-color:var(--surface-3);padding-right:40px}
+
+/* ═══════════════ HERO SURFACE ════════════════════════════════════════════ */
+.hero{background:var(--primary);margin:0 16px 14px;border-radius:var(--r-lg);padding:20px;box-shadow:var(--shadow);color:#fff}
+.hero-lbl{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:6px}
+.hero-title{font-size:22px;font-weight:900;line-height:1.2;margin-bottom:4px}
+.hero-sub{font-size:14px;color:rgba(255,255,255,.7);line-height:1.5}
+.hero-num{font-size:42px;font-weight:900;color:#ffffff;line-height:1}
+
+/* ═══════════════ SECTION HEADER ══════════════════════════════════════════ */
+.sec-hd{padding:16px 16px 8px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--on-s3);display:flex;align-items:center;justify-content:space-between}
+.sec-ct{font-size:12px;background:var(--primary-cont);color:var(--primary);padding:2px 10px;border-radius:var(--r-full);font-weight:700}
+
+/* ═══════════════ DOSE CHECKLIST ══════════════════════════════════════════ */
+.dose-group{margin-bottom:8px}
+.dose-grp-bar{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--surface-3);border-top:1px solid var(--outline);border-bottom:1px solid var(--outline)}
+.dose-grp-ic{width:28px;height:28px;border-radius:var(--r-sm);background:var(--primary-cont);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dose-grp-nm{font-size:12px;font-weight:700;color:var(--primary);letter-spacing:.06em;text-transform:uppercase;flex:1}
+.dose-grp-pr{font-size:12px;color:var(--on-s3)}
+.dose-item{display:flex;align-items:center;gap:16px;padding:18px 16px;background:var(--surface);cursor:pointer;transition:background .15s;min-height:72px}
+.dose-item+.dose-item{border-top:1px solid var(--outline)}
+.dose-item:active{background:rgba(9,40,123,.04)}
+.dose-chk{width:32px;height:32px;border-radius:var(--r-full);border:2.5px solid var(--outline);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.dose-chk.done{background:var(--primary);border-color:var(--primary)}
+.dose-nm{font-size:17px;font-weight:500;color:var(--on-surface);flex:1}
+.dose-meta{font-size:13px;color:var(--on-s3);margin-top:3px}
+.dose-time{font-size:13px;font-weight:700;color:var(--primary)}
+
+/* ═══════════════ OVERLAY / SHEET / POPUP ════════════════════════════════ */
+.overlay{position:absolute;inset:0;background:var(--scrim);display:none;align-items:flex-end;justify-content:center;z-index:100}
+.overlay.center{align-items:center;padding:20px}
+.overlay.open{display:flex}
+.sheet{background:var(--surface);width:100%;border-radius:var(--r-lg) var(--r-lg) 0 0;max-height:88%;overflow-y:auto}
+.popup{background:var(--surface);width:100%;border-radius:var(--r-lg);max-height:86%;overflow-y:auto;animation:popIn .22s cubic-bezier(.34,1.56,.64,1)}
+@keyframes popIn{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:scale(1)}}
+.sheet-handle{width:32px;height:4px;border-radius:var(--r-full);background:var(--outline);margin:10px auto 14px}
+.sheet-hd{background:var(--primary);padding:14px 18px;display:flex;align-items:center;gap:12px}
+.sh-back{width:36px;height:36px;border-radius:var(--r-full);background:rgba(255,255,255,.12);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;transition:background .15s}
+.sh-back:hover{background:rgba(255,255,255,.22)}
+.sh-title{font-size:17px;font-weight:700;color:#fff;flex:1}
+.sh-close{width:36px;height:36px;border-radius:var(--r-full);background:rgba(255,255,255,.12);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;flex-shrink:0}
+.sh-body{padding:20px}
+
+/* ═══════════════ LOGOUT OVERLAY ═════════════════════════════════════════ */
+.logout-dialog{background:var(--surface);width:100%;max-width:320px;border-radius:var(--r-lg);padding:28px 24px 20px;animation:popIn .22s cubic-bezier(.34,1.56,.64,1);text-align:center}
+.logout-icon{width:56px;height:56px;border-radius:var(--r-full);background:var(--error-light);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.logout-title{font-size:20px;font-weight:900;color:var(--on-surface);margin-bottom:8px}
+.logout-body{font-size:14px;color:var(--on-s3);line-height:1.6;margin-bottom:24px}
+.logout-name{font-weight:700;color:var(--primary)}
+.logout-actions{display:flex;gap:10px}
+
+/* ═══════════════ STAT GRID ═══════════════════════════════════════════════ */
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.stat-cell{background:var(--surface-3);border-radius:var(--r-md);padding:12px}
+.stat-lbl{font-size:12px;font-weight:700;color:var(--on-s3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:3px}
+.stat-val{font-size:15px;font-weight:700;color:var(--on-surface)}
+.sec-label{font-size:12px;font-weight:700;color:var(--on-s3);letter-spacing:.09em;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--outline)}
+
+/* ═══════════════ SNACKBAR ════════════════════════════════════════════════ */
+.snackbar{position:absolute;bottom:92px;left:16px;right:16px;background:#1a1a2e;color:#fff;padding:14px 16px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:space-between;font-size:14px;transform:translateY(120px);transition:transform .3s;z-index:50;box-shadow:var(--shadow)}
+.snackbar.show{transform:translateY(0)}
+.snack-act{background:var(--secondary);color:var(--primary);border:none;cursor:pointer;border-radius:var(--r-sm);padding:6px 14px;font-size:13px;font-weight:700;font-family:var(--ff)}
+
+/* ═══════════════ PROGRESS RING ═══════════════════════════════════════════ */
+.prog-ring{transform:rotate(-90deg)}
+.prog-ring-bg{fill:none;stroke:rgba(255,255,255,.2);stroke-width:5}
+.prog-ring-fg{fill:none;stroke:var(--secondary);stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset .6s cubic-bezier(.4,0,.2,1)}
+
+/* ═══════════════ APPOINTMENTS ════════════════════════════════════════════ */
+.appt-row{display:flex;align-items:stretch;cursor:pointer;transition:background .15s}
+.appt-row:hover{background:rgba(9,40,123,.04)}
+.appt-row+.appt-row{border-top:1px solid var(--outline)}
+.appt-date{width:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 0;background:var(--primary-cont);border-right:1px solid var(--outline);flex-shrink:0}
+.appt-day{font-size:24px;font-weight:900;color:var(--primary);line-height:1}
+.appt-mo{font-size:12px;font-weight:700;color:var(--primary-light);text-transform:uppercase;letter-spacing:.05em}
+.appt-body{flex:1;padding:14px 16px;display:flex;flex-direction:column;justify-content:center;gap:3px}
+.appt-title{font-size:16px;font-weight:500;color:var(--on-surface)}
+.appt-dr{font-size:13px;color:var(--on-s3)}
+.appt-trail{padding:14px 14px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:6px}
+
+/* ═══════════════ SEARCH BAR ══════════════════════════════════════════════ */
+.search-wrap{margin:12px 16px;background:var(--surface);border-radius:var(--r-full);border:1px solid var(--outline);display:flex;align-items:center;gap:10px;padding:0 16px;height:52px;box-shadow:var(--shadow-sm)}
+.search-wrap input{flex:1;border:none;outline:none;background:transparent;font-size:16px;font-family:var(--ff);color:var(--on-surface)}
+.search-wrap input::placeholder{color:var(--on-s3)}
+
+/* ═══════════════ PATIENT LIST ════════════════════════════════════════════ */
+.pt-avatar{width:44px;height:44px;border-radius:var(--r-full);background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;letter-spacing:.04em}
+.alpha-hd{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--on-s3);padding:8px 16px 4px;background:var(--surface-3)}
+
+/* ═══════════════ STEP PROGRESS ═══════════════════════════════════════════ */
+.step-row{display:flex;gap:6px;padding:4px 16px 16px;align-items:center}
+.step-dot{width:8px;height:8px;border-radius:var(--r-full);background:var(--outline);transition:all .25s;flex-shrink:0}
+.step-dot.act{background:var(--primary);width:24px}
+.step-dot.dn{background:var(--primary)}
+
+/* ═══════════════ TRANSCRIPT ══════════════════════════════════════════════ */
+.tr-card{margin:0 16px 10px;border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-sm)}
+.tr-row{padding:14px 16px;display:flex;gap:12px;align-items:flex-start}
+.tr-row.orig{background:var(--surface)}
+.tr-row.xlat{background:var(--primary-cont)}
+.tr-row+.tr-row{border-top:1px solid rgba(0,0,0,.06)}
+.tr-tag{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:var(--r-sm);flex-shrink:0;margin-top:3px}
+.tr-tag.dr{background:var(--primary);color:#fff}
+.tr-tag.es{background:var(--secondary-dark);color:#fff}
+.tr-tag.pt{background:var(--surface-3);color:var(--primary)}
+.tr-text{font-size:15px;line-height:1.55;flex:1;color:var(--on-surface);font-weight:400}
+.tr-text.orig{font-weight:600}
+.tr-text.xlat{font-style:italic;color:var(--on-s2)}
+
+/* ═══════════════ STATUS PILLS ════════════════════════════════════════════ */
+.st-row{display:flex;gap:8px;padding:12px 16px;background:var(--surface-3);border-bottom:1px solid var(--outline);flex-shrink:0}
+.st-pill{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:var(--r-full);background:var(--surface);border:1px solid var(--outline);font-size:12px;font-weight:500;color:var(--on-s3);transition:all .2s;flex-shrink:0}
+.st-pill.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+.st-dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
+.st-dot.pulse{animation:pulse 1.1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* ═══════════════ RECORD BUTTON ═══════════════════════════════════════════ */
+.rec-btn{margin:0 16px 16px;height:60px;display:flex;align-items:center;justify-content:center;gap:10px;background:var(--primary);color:#fff;border-radius:var(--r-full);border:none;cursor:pointer;font-size:16px;font-weight:700;font-family:var(--ff);letter-spacing:.02em;box-shadow:var(--shadow);transition:opacity .15s}
+.rec-btn.rec{background:var(--error)}
+.rec-dot{width:10px;height:10px;border-radius:50%;background:#fff;flex-shrink:0}
+.rec-dot.blink{animation:pulse .9s infinite}
+
+/* ═══════════════ WARNING BOX ═════════════════════════════════════════════ */
+.warn-box{background:var(--error-light);border:1.5px solid var(--error);border-radius:var(--r-md);padding:14px;margin:12px 0;display:flex;gap:10px;align-items:flex-start}
+.warn-txt{font-size:13px;line-height:1.6;color:var(--error)}
+
+/* ═══════════════ CONFIRM ROW ═════════════════════════════════════════════ */
+.cfm-row{display:flex;justify-content:space-between;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--outline)}
+.cfm-row:last-of-type{border-bottom:none}
+.cfm-key{font-size:12px;font-weight:700;color:var(--on-s3);text-transform:uppercase;letter-spacing:.06em}
+.cfm-val{font-size:15px;font-weight:500;color:var(--on-surface);text-align:right;max-width:56%}
+
+/* ═══════════════ LANDING SCREEN ══════════════════════════════════════════ */
+.landing{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center;gap:12px;background:var(--primary)}
+.land-icon{width:80px;height:80px;border-radius:var(--r-lg);background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+.land-app{font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+.land-title{font-size:30px;font-weight:900;color:#fff;line-height:1.15;letter-spacing:-.02em}
+.land-sub{font-size:15px;color:rgba(255,255,255,.7);line-height:1.6;max-width:280px}
+.lang-row{display:flex;background:rgba(255,255,255,.12);border-radius:var(--r-full);padding:4px;gap:4px;margin-top:8px}
+.lang-opt{flex:1;padding:10px 20px;border-radius:var(--r-full);font-size:14px;font-weight:700;cursor:pointer;border:none;background:transparent;color:rgba(255,255,255,.65);transition:all .15s;letter-spacing:.04em;font-family:var(--ff)}
+.lang-opt.active{background:#fff;color:var(--primary);box-shadow:var(--shadow-sm)}
+
+/* ═══════════════ ROLE SELECTION ══════════════════════════════════════════ */
+.role-body{flex:1;padding:24px 20px;display:flex;flex-direction:column;gap:16px;background:var(--surface)}
+.role-heading{font-size:24px;font-weight:900;color:var(--on-surface);margin-bottom:4px}
+.role-sub{font-size:15px;color:var(--on-s3);line-height:1.55;margin-bottom:8px}
+.role-card{background:var(--surface);border-radius:var(--r-lg);border:2px solid var(--outline);padding:22px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:all .15s;box-shadow:var(--shadow-sm)}
+.role-card:hover,.role-card:active{border-color:var(--primary);background:var(--primary-cont)}
+.rc-ico{width:52px;height:52px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rc-title{font-size:18px;font-weight:700;color:var(--on-surface);margin-bottom:4px}
+.rc-sub{font-size:14px;color:var(--on-s3);line-height:1.4}
+
+/* ═══════════════ LOGIN SCREEN ════════════════════════════════════════════ */
+.login-hd{background:var(--primary);padding:28px 22px 24px;display:flex;align-items:center;gap:14px;flex-shrink:0}
+.login-back{width:44px;height:44px;border-radius:var(--r-full);background:rgba(255,255,255,.12);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;transition:background .15s}
+.login-back:hover{background:rgba(255,255,255,.22)}
+.login-hd-text{flex:1}
+.login-hd-title{font-size:24px;font-weight:900;color:#fff;line-height:1.15}
+.login-hd-sub{font-size:13px;color:rgba(255,255,255,.65);margin-top:3px;line-height:1.4}
+.login-role-chip{padding:5px 14px;border-radius:var(--r-full);font-size:12px;font-weight:700;flex-shrink:0}
+.login-body{flex:1;padding:24px 22px;overflow-y:auto;display:flex;flex-direction:column}
+.login-note{font-size:14px;color:var(--on-s3);margin-bottom:22px;line-height:1.5}
+.login-footer{padding:16px 22px 24px;text-align:center;font-size:14px;color:var(--on-s3);border-top:1px solid var(--outline)}
+.login-footer a{color:var(--primary);font-weight:500;cursor:pointer;text-decoration:none}
+
+/* ═══════════════ POST-LOGIN LANDING ══════════════════════════════════════ */
+.welcome-screen{flex:1;display:flex;flex-direction:column;overflow-y:auto;padding-bottom:0}
+.welcome-hero{background:var(--primary);padding:28px 22px 24px;color:#fff;display:flex;gap:16px;align-items:flex-start}
+.wh-greet{font-size:14px;color:rgba(255,255,255,.65);font-weight:400;margin-bottom:4px}
+.wh-name{font-size:28px;font-weight:900;line-height:1.1}
+.wh-role{display:inline-block;margin-top:8px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;background:rgba(255,255,255,.15);border-radius:var(--r-full);color:rgba(255,255,255,.9)}
+.wh-avatar{width:52px;height:52px;border-radius:var(--r-full);background:var(--secondary);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;flex-shrink:0}
+.quick-actions{padding:16px}
+.qa-title{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--on-s3);margin-bottom:12px}
+.qa-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.qa-btn{background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--outline);padding:16px;display:flex;flex-direction:column;gap:10px;cursor:pointer;transition:all .15s;box-shadow:var(--shadow-sm)}
+.qa-btn:hover,.qa-btn:active{border-color:var(--primary);background:var(--primary-cont)}
+.qa-ic{width:40px;height:40px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center}
+.qa-lbl{font-size:15px;font-weight:500;color:var(--on-surface);line-height:1.3}
+.qa-sub{font-size:12px;color:var(--on-s3);margin-top:2px}
+
+/* ═══════════════ MED INFO POPUP ══════════════════════════════════════════ */
+.mi-effects{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.mi-warn-row{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--outline)}
+.mi-warn-row:last-child{border-bottom:none}
+
+/* ═══════════════ ALLERGY TAG ═════════════════════════════════════════════ */
+.allergy{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--r-full);background:var(--error-light);border:1.5px solid var(--error);font-size:13px;font-weight:700;color:var(--error)}
+
+
+/* ═══ ALARM BELL ON DOSE ITEMS ════════════════════════════════════════════════ */
+.dose-bell{width:32px;height:32px;border-radius:var(--r-full);border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--outline);transition:all .18s;flex-shrink:0}
+.dose-bell.on{color:var(--primary);background:var(--primary-cont)}
+.dose-bell:hover{background:var(--surface-3);color:var(--primary)}
+
+/* ═══ ALARM SET SHEET ═════════════════════════════════════════════════════════ */
+.alarm-set-sheet{background:var(--surface);width:100%;border-radius:var(--r-lg) var(--r-lg) 0 0;overflow:hidden}
+
+/* ═══ ACCOMPLISHMENT CARD ═════════════════════════════════════════════════════ */
+.accom-card{margin:12px 16px 0;border-radius:var(--r-lg);background:linear-gradient(135deg,var(--primary-dark) 0%,var(--primary) 100%);overflow:hidden;animation:slideDown .4s cubic-bezier(.34,1.2,.64,1)}
+@keyframes slideDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══ XP COUNTER ANIMATION ════════════════════════════════════════════════════ */
+@keyframes xpPop{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
+.xp-pop{animation:xpPop .4s cubic-bezier(.34,1.56,.64,1)}
+
+/* ═══ CELEBRATION RING ════════════════════════════════════════════════════════ */
+@keyframes ringPulse{0%{r:26;opacity:1}100%{r:44;opacity:0}}
+.ring-pulse{animation:ringPulse .6s ease-out forwards}
+
+/* ═══ CONFETTI DOTS ═══════════════════════════════════════════════════════════ */
+@keyframes confettiUp{0%{transform:translate(0,0) rotate(0deg);opacity:1}100%{transform:translate(var(--cx),var(--cy)) rotate(360deg);opacity:0}}
+.conf-dot{position:absolute;width:7px;height:7px;border-radius:2px;animation:confettiUp .7s ease-out forwards;pointer-events:none}
+
+/* ═══ ALARM FIRE MODAL — full redesign ════════════════════════════════════════ */
+.alarm-modal-hd{background:var(--primary);padding:24px 20px 20px;text-align:center;position:relative;overflow:hidden}
+.alarm-modal-ring{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+
+/* ═══════════════ SPACERS ═════════════════════════════════════════════════ */
+.pad-top{height:14px;flex-shrink:0}
+.pad-bottom{height:24px;flex-shrink:0}
+.divider{height:1px;background:var(--outline);margin:4px 0}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+          <!-- STATUS BAR -->
+          <div class="status-bar">
+            <span class="sb-time">9:41</span>
+            <div class="sb-icons">
+              <svg width="16" height="12" fill="none"><path d="M1 9h2v3H1zM5 6h2v6H5zM9 3h2v9H9zM13 0h2v12h-2z" fill="white"/></svg>
+              <svg width="16" height="12" fill="none"><path d="M8 2.5C5.5 2.5 3.3 3.5 1.8 5.2L0 3.4C2.1 1.3 5 0 8 0s5.9 1.3 8 3.4l-1.8 1.8C12.7 3.5 10.5 2.5 8 2.5z" fill="white" opacity=".4"/><path d="M8 6c-1.7 0-3.2.7-4.3 1.8L2 6.2C3.5 4.8 5.6 4 8 4s4.5.8 6 2.2l-1.7 1.6C11.2 6.7 9.7 6 8 6z" fill="white" opacity=".7"/><circle cx="8" cy="11" r="1.5" fill="white"/></svg>
+              <svg width="25" height="12" fill="none"><rect x="0" y="1" width="21" height="10" rx="2" stroke="white" stroke-opacity=".35" stroke-width="1"/><rect x="1" y="2" width="16" height="8" rx="1" fill="white"/><path d="M22 4.5v3c.8-.3 1.4-1 1.4-1.5S22.8 4.8 22 4.5z" fill="white" fill-opacity=".4"/></svg>
+            </div>
+          </div>
+
+          <!-- 1. SPLASH / LANGUAGE -->
+          <div class="screen active" id="screen-splash" style="padding-bottom:0">
+            <div class="landing">
+              <div class="land-icon">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="17" stroke="white" stroke-width="1.8" opacity=".5"/><path d="M20 11v18M11 20h18" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>
+              </div>
+              <div class="land-app">Pocket Doctor</div>
+              <div class="land-title" id="sp-title">Your health,<br>in good hands.</div>
+              <div class="land-sub" id="sp-sub">Choose your preferred language to continue.</div>
+              <div class="lang-row">
+                <button class="lang-opt active" id="lang-en" onclick="setLang('en')">English</button>
+                <button class="lang-opt" id="lang-es" onclick="setLang('es')">Español</button>
+              </div>
+              <div style="height:8px"></div>
+              <button class="btn btn-outlined" style="color:#fff;border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.1);width:260px;font-size:16px;height:54px" onclick="goRoleSelect()" id="sp-cta">
+                <span>Continue</span>
+                <svg width="18" height="18" fill="none"><path d="M7 4l7 7-7 7" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. ROLE SELECTION -->
+          <div class="screen" id="screen-role" style="padding-bottom:0">
+            <div class="top-bar">
+              <div class="tb-titles">
+                <div class="tb-title" id="rs-title">Who are you?</div>
+                <div class="tb-sub" id="rs-sub">Select your role to continue</div>
+              </div>
+            </div>
+            <div class="role-body">
+              <div class="role-heading" id="rs-h">Welcome</div>
+              <div class="role-sub" id="rs-s">Please tell us who you are so we can show you the right tools.</div>
+              <div class="role-card" onclick="goLogin('patient')">
+                <div class="rc-ico" style="background:var(--primary-cont)">
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="9" r="5" stroke="var(--primary)" stroke-width="2"/><path d="M4 26c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="var(--primary)" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <div style="flex:1">
+                  <div class="rc-title" id="rc-pt">I am a patient</div>
+                  <div class="rc-sub" id="rc-pt-s">Check my medicines &amp; upcoming visits</div>
+                </div>
+                <svg width="22" height="22" fill="none"><path d="M8 5l8 8-8 8" stroke="var(--on-s3)" stroke-width="2" stroke-linecap="round"/></svg>
+              </div>
+              <div class="role-card" onclick="goLogin('doctor')">
+                <div class="rc-ico" style="background:var(--success-light)">
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="10" y="2" width="8" height="6" rx="1" stroke="var(--success)" stroke-width="2"/><path d="M6 8h16v16a2 2 0 01-2 2H8a2 2 0 01-2-2V8z" stroke="var(--success)" stroke-width="2"/><path d="M11 17h6M14 14v6" stroke="var(--success)" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <div style="flex:1">
+                  <div class="rc-title" id="rc-dr">I am a doctor</div>
+                  <div class="rc-sub" id="rc-dr-s">Manage patients &amp; write prescriptions</div>
+                </div>
+                <svg width="22" height="22" fill="none"><path d="M8 5l8 8-8 8" stroke="var(--on-s3)" stroke-width="2" stroke-linecap="round"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3A. LOGIN — PATIENT -->
+          <div class="screen" id="screen-login-patient" style="padding-bottom:0">
+            <div class="login-hd">
+              <button class="login-back" onclick="goRoleSelect()">
+                <svg width="22" height="22" fill="none"><path d="M15 5l-9 9 9 9" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg>
+              </button>
+              <div class="login-hd-text">
+                <div class="login-hd-title" id="lp-title">Welcome back</div>
+                <div class="login-hd-sub" id="lp-sub">Your health information is safe with us</div>
+              </div>
+              <div class="login-role-chip" style="background:var(--primary-cont);color:var(--primary)" id="lp-chip">Patient</div>
+            </div>
+            <div class="login-body">
+              <div class="login-note" id="lp-note">Please fill in all three fields to continue. We use these to find your records safely.</div>
+              <div class="tf"><label id="lp-ln">Your full name</label><input type="text" id="lp-name" placeholder="e.g. María García" oninput="chkLogin('p')" aria-label="Full name"></div>
+              <div class="tf"><label id="lp-ld">Your date of birth</label><input type="text" id="lp-dob" placeholder="e.g. 15/06/1978" oninput="chkLogin('p')" aria-label="Date of birth"></div>
+              <div class="tf"><label id="lp-lm">Your medical record number</label><input type="text" id="lp-mrn" placeholder="e.g. MX-000-8821" oninput="chkLogin('p')" aria-label="Medical record"></div>
+              <div style="margin-top:auto;padding-top:8px">
+                <button class="btn btn-filled" id="lp-btn" onclick="doLogin('patient')" disabled><span id="lp-btxt">Take me in</span></button>
+              </div>
+            </div>
+            <div class="login-footer"><span id="lp-ft">Are you a doctor? </span><a onclick="goLogin('doctor')" id="lp-sw">Sign in as a doctor instead</a></div>
+          </div>
+
+          <!-- 3B. LOGIN — DOCTOR -->
+          <div class="screen" id="screen-login-doctor" style="padding-bottom:0">
+            <div class="login-hd">
+              <button class="login-back" onclick="goRoleSelect()">
+                <svg width="22" height="22" fill="none"><path d="M15 5l-9 9 9 9" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg>
+              </button>
+              <div class="login-hd-text">
+                <div class="login-hd-title" id="ld-title">Good to see you</div>
+                <div class="login-hd-sub" id="ld-sub">Your patients are waiting for you</div>
+              </div>
+              <div class="login-role-chip" style="background:var(--success-light);color:var(--success)" id="ld-chip">Doctor</div>
+            </div>
+            <div class="login-body">
+              <div class="login-note" id="ld-note">Please enter your name and license number to access the dashboard.</div>
+              <div class="tf"><label id="ld-ln">Your full name</label><input type="text" id="ld-name" placeholder="e.g. Dr. Ana Martínez" oninput="chkLogin('d')" aria-label="Full name"></div>
+              <div class="tf"><label id="ld-li">Your license number</label><input type="text" id="ld-id" placeholder="e.g. DX-2024-00182" oninput="chkLogin('d')" aria-label="License"></div>
+              <div style="margin-top:auto;padding-top:8px">
+                <button class="btn btn-filled green" id="ld-btn" onclick="doLogin('doctor')" disabled><span id="ld-btxt">Enter the dashboard</span></button>
+              </div>
+            </div>
+            <div class="login-footer"><span id="ld-ft">Not a doctor? </span><a onclick="goLogin('patient')" id="ld-sw">Sign in as a patient instead</a></div>
+          </div>
+
+          <!-- 4. POST-LOGIN WELCOME -->
+          <div class="screen" id="screen-welcome">
+            <!-- Logout confirmation overlay -->
+            <div class="overlay center" id="logout-ov">
+              <div class="logout-dialog">
+                <div class="logout-icon">
+                  <svg width="24" height="24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="var(--error)" stroke-width="2.2" stroke-linecap="round"/><polyline points="16 17 21 12 16 7" stroke="var(--error)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="var(--error)" stroke-width="2.2" stroke-linecap="round"/></svg>
+                </div>
+                <div class="logout-title" id="lo-title">Sign out?</div>
+                <div class="logout-body" id="lo-body">You're signed in as <span class="logout-name" id="lo-name"></span>. Signing out will return you to the login screen.</div>
+                <div class="logout-actions">
+                  <button class="btn btn-tonal" onclick="document.getElementById('logout-ov').classList.remove('open')" id="lo-cancel" style="font-size:14px;height:48px">Stay</button>
+                  <button class="btn btn-filled" onclick="confirmLogout()" id="lo-confirm" style="background:var(--error);font-size:14px;height:48px">Sign out</button>
+                </div>
+              </div>
+            </div>
+            <div class="welcome-screen" style="flex:1;overflow-y:auto;padding-bottom:90px">
+              <div class="welcome-hero">
+                <div>
+                  <div class="wh-greet" id="wh-greet">Good morning</div>
+                  <div class="wh-name" id="wh-name">Welcome</div>
+                  <div class="wh-role" id="wh-role">Patient</div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-left:auto;flex-shrink:0">
+                  <div class="wh-avatar" id="wh-av">?</div>
+                  <button onclick="openLogout()" title="Sign out" id="lo-btn" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:var(--r-full);color:rgba(255,255,255,.8);font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;padding:4px 10px;display:flex;align-items:center;gap:4px;transition:background .15s;white-space:nowrap">
+                    <svg width="11" height="11" fill="none"><path d="M4.5 10.5H2.5a1 1 0 01-1-1v-8a1 1 0 011-1h2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><polyline points="7.5 8 10 5.5 7.5 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><line x1="10" y1="5.5" x2="4.5" y2="5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                    <span id="lo-btn-lbl">Sign out</span>
+                  </button>
+                </div>
+              </div>
+              <!-- Patient quick actions -->
+              <div class="quick-actions" id="qa-patient">
+                <div class="qa-title" id="qa-title">What would you like to do?</div>
+                <div class="qa-grid">
+                  <div class="qa-btn" onclick="navTo('tracker')">
+                    <div class="qa-ic" style="background:var(--primary-cont)"><svg width="22" height="22" fill="none"><rect x="3" y="4" width="16" height="16" rx="2" stroke="var(--primary)" stroke-width="2"/><path d="M3 10h16" stroke="var(--primary)" stroke-width="2"/><path d="M8 2v3M14 2v3" stroke="var(--primary)" stroke-width="2" stroke-linecap="round"/><path d="M7 14l2.5 2.5L15 12" stroke="var(--primary)" stroke-width="2" stroke-linecap="round"/></svg></div>
+                    <div class="qa-lbl" id="qa-doses">See today's doses</div>
+                    <div class="qa-sub" id="qa-doses-s">Check what to take now</div>
+                  </div>
+                  <div class="qa-btn" onclick="navTo('live')">
+                    <div class="qa-ic" style="background:#E8FEF5"><svg width="22" height="22" fill="none"><rect x="8" y="2" width="6" height="10" rx="3" stroke="var(--secondary-dark)" stroke-width="2"/><path d="M5 10a6 6 0 0012 0" stroke="var(--secondary-dark)" stroke-width="2" stroke-linecap="round"/><line x1="11" y1="16" x2="11" y2="20" stroke="var(--secondary-dark)" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="20" x2="14" y2="20" stroke="var(--secondary-dark)" stroke-width="2" stroke-linecap="round"/></svg></div>
+                    <div class="qa-lbl" id="qa-trans">Translate</div>
+                    <div class="qa-sub" id="qa-trans-s">Start a live session</div>
+                  </div>
+                  <div class="qa-btn" onclick="navTo('meds')">
+                    <div class="qa-ic" style="background:var(--primary-cont)"><svg width="22" height="22" fill="none"><rect x="2" y="7" width="18" height="8" rx="4" stroke="var(--primary)" stroke-width="2"/><line x1="11" y1="7" x2="11" y2="15" stroke="var(--primary)" stroke-width="2"/></svg></div>
+                    <div class="qa-lbl" id="qa-meds">My medicines</div>
+                    <div class="qa-sub" id="qa-meds-s">View &amp; learn about them</div>
+                  </div>
+                  <div class="qa-btn" onclick="navTo('appt')">
+                    <div class="qa-ic" style="background:var(--warning-light)"><svg width="22" height="22" fill="none"><rect x="3" y="4" width="16" height="16" rx="2" stroke="var(--warning)" stroke-width="2"/><path d="M3 10h16" stroke="var(--warning)" stroke-width="2"/><path d="M8 2v3M14 2v3" stroke="var(--warning)" stroke-width="2" stroke-linecap="round"/><circle cx="11" cy="14.5" r="1.5" fill="var(--warning)"/></svg></div>
+                    <div class="qa-lbl" id="qa-appt">My visits</div>
+                    <div class="qa-sub" id="qa-appt-s">Upcoming &amp; past</div>
+                  </div>
+                </div>
+              </div>
+              <!-- Doctor quick actions -->
+              <div class="quick-actions" id="qa-doctor" style="display:none">
+                <div class="qa-title" id="qa-dtitle">What would you like to do?</div>
+                <div class="qa-grid">
+                  <div class="qa-btn" onclick="navTo('live')">
+                    <div class="qa-ic" style="background:#E8FEF5"><svg width="22" height="22" fill="none"><rect x="8" y="2" width="6" height="10" rx="3" stroke="var(--secondary-dark)" stroke-width="2"/><path d="M5 10a6 6 0 0012 0" stroke="var(--secondary-dark)" stroke-width="2" stroke-linecap="round"/><line x1="11" y1="16" x2="11" y2="20" stroke="var(--secondary-dark)" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="20" x2="14" y2="20" stroke="var(--secondary-dark)" stroke-width="2" stroke-linecap="round"/></svg></div>
+                    <div class="qa-lbl" id="qa-dlive">Translate now</div>
+                    <div class="qa-sub" id="qa-dlive-s">Live session</div>
+                  </div>
+                  <div class="qa-btn" onclick="navTo('rx')">
+                    <div class="qa-ic" style="background:var(--success-light)"><svg width="22" height="22" fill="none"><rect x="7" y="2" width="8" height="5" rx="1" stroke="var(--success)" stroke-width="2"/><path d="M5 7h12v12a2 2 0 01-2 2H7a2 2 0 01-2-2V7z" stroke="var(--success)" stroke-width="2"/><path d="M9 13h4M11 11v4" stroke="var(--success)" stroke-width="2" stroke-linecap="round"/></svg></div>
+                    <div class="qa-lbl" id="qa-drx">New prescription</div>
+                    <div class="qa-sub" id="qa-drx-s">Write &amp; send</div>
+                  </div>
+                  <div class="qa-btn" onclick="navTo('patients')">
+                    <div class="qa-ic" style="background:var(--primary-cont)"><svg width="22" height="22" fill="none"><path d="M16 19v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" stroke="var(--primary)" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="var(--primary)" stroke-width="2"/><path d="M22 19v-2a4 4 0 00-3-3.87" stroke="var(--primary)" stroke-width="2" stroke-linecap="round"/><path d="M15 3.13a4 4 0 010 7.75" stroke="var(--primary)" stroke-width="2" stroke-linecap="round"/></svg></div>
+                    <div class="qa-lbl" id="qa-dpt">My patients</div>
+                    <div class="qa-sub" id="qa-dpt-s">View &amp; manage</div>
+                  </div>
+                  <div class="qa-btn" onclick="navTo('appt')">
+                    <div class="qa-ic" style="background:var(--warning-light)"><svg width="22" height="22" fill="none"><rect x="3" y="4" width="16" height="16" rx="2" stroke="var(--warning)" stroke-width="2"/><path d="M3 10h16" stroke="var(--warning)" stroke-width="2"/><path d="M8 2v3M14 2v3" stroke="var(--warning)" stroke-width="2" stroke-linecap="round"/><circle cx="11" cy="14.5" r="1.5" fill="var(--warning)"/></svg></div>
+                    <div class="qa-lbl" id="qa-dappt">Appointments</div>
+                    <div class="qa-sub" id="qa-dappt-s">Schedule &amp; history</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. LIVE BRIDGE -->
+          <div class="screen" id="screen-live">
+            <div class="top-bar">
+              <button class="tb-back" onclick="navTo('welcome')" aria-label="Back"><svg width="20" height="20" fill="none"><path d="M14 5l-7 7 7 7" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+              <div class="tb-titles"><div class="tb-title" id="lb-title">Live Translate</div><div class="tb-sub" id="lb-sub">Real-time bilingual conversation</div></div>
+            </div>
+            <div class="st-row">
+              <div class="st-pill" id="sp-listen"><span class="st-dot" id="sd-listen"></span><span id="sl-l">Listening</span></div>
+              <div class="st-pill" id="sp-trans"><span class="st-dot" id="sd-trans"></span><span id="sl-t">Translating</span></div>
+              <div class="st-pill" id="sp-save"><span class="st-dot" id="sd-save"></span><span id="sl-s">Saving</span></div>
+            </div>
+            <div class="pad-top"></div>
+            <div class="tr-card">
+              <div class="tr-row orig"><span class="tr-tag dr" id="tg-dr">DR.</span><span class="tr-text orig">Take this medication twice daily with food. Do you have any allergies?</span></div>
+              <div class="tr-row xlat"><span class="tr-tag es">ES</span><span class="tr-text xlat">Tome este medicamento dos veces al día con comida. ¿Tiene alguna alergia?</span></div>
+            </div>
+            <div class="tr-card">
+              <div class="tr-row orig"><span class="tr-tag pt" id="tg-pt">PT.</span><span class="tr-text orig" style="font-weight:400">No known allergies. I take it morning and evening.</span></div>
+              <div class="tr-row xlat"><span class="tr-tag es">ES</span><span class="tr-text xlat">Sin alergias conocidas. Lo tomo por la mañana y por la noche.</span></div>
+            </div>
+            <div style="flex:1"></div>
+            <button class="rec-btn" id="rec-btn" onclick="toggleListen()">
+              <div class="rec-dot" id="rec-dot"></div>
+              <span id="rec-lbl">Start the conversation</span>
+            </button>
+          </div>
+
+          <!-- 6. DOSE TRACKER (PATIENT) -->
+          <div class="screen" id="screen-tracker">
+            <div class="top-bar">
+              <button class="tb-back" onclick="navTo('welcome')" aria-label="Back"><svg width="20" height="20" fill="none"><path d="M14 5l-7 7 7 7" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+              <div class="tb-titles"><div class="tb-title" id="tr-title">My Doses</div><div class="tb-sub" id="tr-sub">Monday, March 16 — your medicines today</div></div>
+              <div class="tb-actions" style="display:none"></div>
+            </div>
+            <!-- Gamification streak bar -->
+            <div id="gamif-bar" style="background:var(--primary-dark);padding:8px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,.1)">
+              <span style="font-size:18px">🔥</span>
+              <div style="flex:1">
+                <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.9)">Day streak: <span id="gmf-streak">5</span> · Level <span id="gmf-level">3</span></div>
+                <div style="height:5px;background:rgba(255,255,255,.15);border-radius:var(--r-full);margin-top:4px;overflow:hidden"><div id="gmf-xp-bar" style="height:100%;width:70%;background:var(--secondary);border-radius:var(--r-full);transition:width .6s ease"></div></div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:12px;font-weight:900;color:#ffffff" id="gmf-xp-lbl">210 XP</div>
+                <div style="font-size:11px;color:rgba(255,255,255,.5)">next: 300</div>
+              </div>
+            </div>
+            <div style="padding:14px 16px 4px;flex-shrink:0">
+              <div class="hero">
+                <div style="display:flex;align-items:center;gap:14px">
+                  <div>
+                    <div class="hero-lbl" id="h-lbl">Your medicines today</div>
+                    <div class="hero-num" id="h-num">2/5</div>
+                    <div style="font-size:14px;color:rgba(255,255,255,.7);margin-top:4px" id="h-streak">Great job — keep it up!</div>
+                  </div>
+                  <div style="margin-left:auto">
+                    <svg width="64" height="64" viewBox="0 0 64 64" class="prog-ring">
+                      <circle class="prog-ring-bg" cx="32" cy="32" r="26"/>
+                      <circle class="prog-ring-fg" id="prog-circle" cx="32" cy="32" r="26" stroke-dasharray="163.4" stroke-dashoffset="98"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="dose-group">
+              <div class="dose-grp-bar">
+                <div class="dose-grp-ic"><svg width="14" height="14" fill="none"><circle cx="7" cy="7" r="2.5" stroke="var(--primary)" stroke-width="1.4"/><path d="M7 1.5v1M7 11.5v1M1.5 7h1M11.5 7h1" stroke="var(--primary)" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+                <span class="dose-grp-nm" id="dg-m">With breakfast</span>
+                <span class="dose-grp-pr" id="dp-m">1/2</span>
+              </div>
+              <div class="md-card" style="margin:8px 16px 0">
+                <div class="dose-item" id="med-0" onclick="toggleDose(0)" role="checkbox" aria-checked="true">
+                  <div class="dose-chk done" id="chk-0"><svg width="14" height="14" fill="none"><path d="M2.5 7.5l3 3 5.5-5.5" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+                  <div><div class="dose-nm">Metformin 850mg</div><div class="dose-meta" id="dm-0">1 tablet · with breakfast</div></div>
+                  <span class="dose-time">6:00</span>
+                  <button class="dose-bell" id="bell-0" onclick="openAlarmSet(event,0)" title="Set alarm" aria-label="Set alarm for Metformin breakfast"><svg width="16" height="16" fill="none"><path d="M8 1.5a5 5 0 015 5v3l1.5 2H1.5L3 9.5v-3a5 5 0 015-5z" stroke="currentColor" stroke-width="1.6"/><path d="M6.5 13.5a1.5 1.5 0 003 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+                </div>
+                <div class="dose-item" id="med-1" onclick="toggleDose(1)" role="checkbox" aria-checked="false">
+                  <div class="dose-chk" id="chk-1"></div>
+                  <div><div class="dose-nm">Lisinopril 10mg</div><div class="dose-meta" id="dm-1">1 tablet · before eating</div></div>
+                  <span class="dose-time">8:00</span>
+                  <button class="dose-bell" id="bell-1" onclick="openAlarmSet(event,1)" title="Set alarm" aria-label="Set alarm for Lisinopril"><svg width="16" height="16" fill="none"><path d="M8 1.5a5 5 0 015 5v3l1.5 2H1.5L3 9.5v-3a5 5 0 015-5z" stroke="currentColor" stroke-width="1.6"/><path d="M6.5 13.5a1.5 1.5 0 003 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+                </div>
+              </div>
+            </div>
+            <div class="dose-group">
+              <div class="dose-grp-bar">
+                <div class="dose-grp-ic"><svg width="14" height="14" fill="none"><path d="M2 10h10M7 7.5V5.5M5 7.5a2 2 0 004 0" stroke="var(--primary)" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+                <span class="dose-grp-nm" id="dg-a">After lunch</span>
+                <span class="dose-grp-pr" id="dp-a">1/1</span>
+              </div>
+              <div class="md-card" style="margin:8px 16px 0">
+                <div class="dose-item" id="med-2" onclick="toggleDose(2)" role="checkbox" aria-checked="true">
+                  <div class="dose-chk done" id="chk-2"><svg width="14" height="14" fill="none"><path d="M2.5 7.5l3 3 5.5-5.5" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+                  <div><div class="dose-nm">Omeprazole 20mg</div><div class="dose-meta" id="dm-2">1 capsule · before lunch</div></div>
+                  <span class="dose-time">13:00</span>
+                  <button class="dose-bell" id="bell-2" onclick="openAlarmSet(event,2)" title="Set alarm" aria-label="Set alarm for Omeprazole"><svg width="16" height="16" fill="none"><path d="M8 1.5a5 5 0 015 5v3l1.5 2H1.5L3 9.5v-3a5 5 0 015-5z" stroke="currentColor" stroke-width="1.6"/><path d="M6.5 13.5a1.5 1.5 0 003 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+                </div>
+              </div>
+            </div>
+            <div class="dose-group">
+              <div class="dose-grp-bar">
+                <div class="dose-grp-ic"><svg width="14" height="14" fill="none"><path d="M7 2C4.8 2 3 3.8 3 6s1.8 4 4 4a4 4 0 002.8-1.1A4.5 4.5 0 017 2z" stroke="var(--primary)" stroke-width="1.4"/></svg></div>
+                <span class="dose-grp-nm" id="dg-e">With dinner</span>
+                <span class="dose-grp-pr" id="dp-e">0/1</span>
+              </div>
+              <div class="md-card" style="margin:8px 16px 0">
+                <div class="dose-item" id="med-3" onclick="toggleDose(3)" role="checkbox" aria-checked="false">
+                  <div class="dose-chk" id="chk-3"></div>
+                  <div><div class="dose-nm">Metformin 850mg</div><div class="dose-meta" id="dm-3">1 tablet · with dinner</div></div>
+                  <span class="dose-time">20:00</span>
+                  <button class="dose-bell" id="bell-3" onclick="openAlarmSet(event,3)" title="Set alarm" aria-label="Set alarm for Metformin dinner"><svg width="16" height="16" fill="none"><path d="M8 1.5a5 5 0 015 5v3l1.5 2H1.5L3 9.5v-3a5 5 0 015-5z" stroke="currentColor" stroke-width="1.6"/><path d="M6.5 13.5a1.5 1.5 0 003 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+                </div>
+              </div>
+            </div>
+            <div class="dose-group">
+              <div class="dose-grp-bar">
+                <div class="dose-grp-ic"><svg width="14" height="14" fill="none"><circle cx="7" cy="7" r="4" stroke="var(--primary)" stroke-width="1.4" stroke-dasharray="2 1.2"/><path d="M7 5v2l1.5 1.5" stroke="var(--primary)" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+                <span class="dose-grp-nm" id="dg-n">At bedtime</span>
+                <span class="dose-grp-pr" id="dp-n">0/1</span>
+              </div>
+              <div class="md-card" style="margin:8px 16px 0">
+                <div class="dose-item" id="med-4" onclick="toggleDose(4)" role="checkbox" aria-checked="false">
+                  <div class="dose-chk" id="chk-4"></div>
+                  <div><div class="dose-nm">Atorvastatin 20mg</div><div class="dose-meta" id="dm-4">1 tablet · before sleep</div></div>
+                  <span class="dose-time">22:00</span>
+                  <button class="dose-bell" id="bell-4" onclick="openAlarmSet(event,4)" title="Set alarm" aria-label="Set alarm for Atorvastatin"><svg width="16" height="16" fill="none"><path d="M8 1.5a5 5 0 015 5v3l1.5 2H1.5L3 9.5v-3a5 5 0 015-5z" stroke="currentColor" stroke-width="1.6"/><path d="M6.5 13.5a1.5 1.5 0 003 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+                </div>
+              </div>
+            </div>
+            <div class="pad-bottom"></div>
+            <!-- SNACKBAR — dose tracker only -->
+            <div class="snackbar" id="snackbar">
+              <span id="snack-msg">Got it — change saved.</span>
+              <button class="snack-act" onclick="doUndo()" id="snack-undo">UNDO</button>
+            </div>
+            <!-- BADGE TOAST — gamification, tracker only -->
+            <div id="badge-toast" style="position:absolute;bottom:92px;left:50%;transform:translateX(-50%) translateY(120px);background:linear-gradient(135deg,#09287B,#00A8BB);color:#fff;border-radius:var(--r-full);padding:12px 24px;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;transition:transform .4s cubic-bezier(.34,1.56,.64,1);z-index:300;white-space:nowrap">
+              <span id="badge-emoji" style="font-size:22px">🏆</span>
+              <span id="badge-msg">Badge unlocked!</span>
+            </div>
+          </div>
+
+          <!-- 7. MY MEDICINES (PATIENT) -->
+          <div class="screen" id="screen-meds">
+            <div class="top-bar">
+              <button class="tb-back" onclick="navTo('welcome')" aria-label="Back"><svg width="20" height="20" fill="none"><path d="M14 5l-7 7 7 7" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+              <div class="tb-titles"><div class="tb-title" id="me-title">My Medicines</div><div class="tb-sub" id="me-sub">Your current prescriptions</div></div>
+            </div>
+            <div class="sec-hd"><span id="me-sh">Your current medicines</span><span class="sec-ct">3</span></div>
+            <div class="md-card">
+              <div class="list-item">
+                <div class="li-lead" style="background:var(--primary-cont)"><svg width="20" height="20" fill="none"><rect x="2" y="6" width="16" height="8" rx="4" stroke="var(--primary)" stroke-width="1.8"/><line x1="10" y1="6" x2="10" y2="14" stroke="var(--primary)" stroke-width="1.8"/></svg></div>
+                <div class="li-body"><div class="li-h">Metformin 850mg</div><div class="li-s" id="mhd-0">Twice a day · morning &amp; evening</div><div style="font-size:12px;color:var(--on-s3);margin-top:2px">Dr. Smith · Mar 10</div></div>
+                <div class="li-trail"><span class="chip tonal" style="font-size:12px;padding:3px 10px" id="mhb-0">Taking now</span><button onclick="openMedInfo('Metformin 850mg')" style="border:none;background:none;cursor:pointer;padding:4px;color:var(--primary)" aria-label="Learn more"><svg width="20" height="20" fill="none"><rect x="2" y="6" width="16" height="8" rx="4" stroke="currentColor" stroke-width="1.8"/><line x1="10" y1="6" x2="10" y2="14" stroke="currentColor" stroke-width="1.8"/></svg></button></div>
+              </div>
+              <div class="list-item">
+                <div class="li-lead" style="background:var(--surface-3)"><svg width="20" height="20" fill="none"><rect x="2" y="6" width="16" height="8" rx="4" stroke="var(--on-s3)" stroke-width="1.8"/><line x1="10" y1="6" x2="10" y2="14" stroke="var(--on-s3)" stroke-width="1.8"/></svg></div>
+                <div class="li-body"><div class="li-h">Amoxicillin 500mg</div><div class="li-s" id="mhd-1">Three times a day · 7 days</div><div style="font-size:12px;color:var(--on-s3);margin-top:2px">Dr. Smith · Feb 22</div></div>
+                <div class="li-trail"><span class="chip gray" style="font-size:12px;padding:3px 10px" id="mhb-1">Finished</span><button onclick="openMedInfo('Amoxicillin 500mg')" style="border:none;background:none;cursor:pointer;padding:4px;color:var(--on-s3)" aria-label="Learn more"><svg width="20" height="20" fill="none"><rect x="2" y="6" width="16" height="8" rx="4" stroke="currentColor" stroke-width="1.8"/><line x1="10" y1="6" x2="10" y2="14" stroke="currentColor" stroke-width="1.8"/></svg></button></div>
+              </div>
+              <div class="list-item">
+                <div class="li-lead" style="background:var(--primary-cont)"><svg width="20" height="20" fill="none"><rect x="2" y="6" width="16" height="8" rx="4" stroke="var(--primary)" stroke-width="1.8"/><line x1="10" y1="6" x2="10" y2="14" stroke="var(--primary)" stroke-width="1.8"/></svg></div>
+                <div class="li-body"><div class="li-h">Lisinopril 10mg</div><div class="li-s" id="mhd-2">Once a day · morning</div><div style="font-size:12px;color:var(--on-s3);margin-top:2px">Dr. Jones · Jan 5</div></div>
+                <div class="li-trail"><span class="chip tonal" style="font-size:12px;padding:3px 10px" id="mhb-2">Taking now</span><button onclick="openMedInfo('Lisinopril 10mg')" style="border:none;background:none;cursor:pointer;padding:4px;color:var(--primary)" aria-label="Learn more"><svg width="20" height="20" fill="none"><rect x="2" y="6" width="16" height="8" rx="4" stroke="currentColor" stroke-width="1.8"/><line x1="10" y1="6" x2="10" y2="14" stroke="currentColor" stroke-width="1.8"/></svg></button></div>
+              </div>
+            </div>
+            <div class="pad-bottom"></div>
+            <!-- Med info popup -->
+            <div class="overlay center" id="medinfo-ov">
+              <div class="popup" style="max-width:358px">
+                <div class="sheet-hd" style="border-radius:var(--r-lg) var(--r-lg) 0 0">
+                  <button class="sh-back" onclick="closeMedInfo()"><svg width="18" height="18" fill="none"><path d="M13 4l-7 7 7 7" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button>
+                  <div style="flex:1"><div class="sh-title" id="mi-title">Medicine</div><div style="font-size:12px;color:rgba(255,255,255,.65);margin-top:2px" id="mi-sub"></div></div>
+                  <button class="sh-close" onclick="closeMedInfo()">&#x2715;</button>
+                </div>
+                <div class="sh-body" id="mi-body"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 8. APPOINTMENTS (BOTH ROLES) -->
+          <div class="screen" id="screen-appt">
+            <div class="top-bar">
+              <button class="tb-back" onclick="navTo('welcome')" aria-label="Back"><svg width="20" height="20" fill="none"><path d="M14 5l-7 7 7 7" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+              <div class="tb-titles"><div class="tb-title" id="ap-title">My Visits</div><div class="tb-sub" id="ap-sub">Upcoming &amp; past appointments</div></div>
+            </div>
+            <div style="padding:14px 16px 0;flex-shrink:0">
+              <div class="hero">
+                <div class="hero-lbl" id="ap-nl">Your next appointment</div>
+                <div class="hero-title">Dr. Smith</div>
+                <div class="hero-sub" id="ap-ns">Dr. Smith is expecting you at 10:30 AM on Thursday, March 19</div>
+                <div style="margin-top:14px">
+                  <button class="btn btn-tonal btn-sm" onclick="openScript('upcoming')" style="width:auto;padding:0 24px" id="ap-vb"><span id="ap-vbt">Read the visit notes</span></button>
+                </div>
+              </div>
+            </div>
+            <div class="sec-hd"><span id="ap-us">Coming up</span><span class="sec-ct">2</span></div>
+            <div class="md-card">
+              <div class="appt-row" onclick="openScript('upcoming')">
+                <div class="appt-date"><div class="appt-day">19</div><div class="appt-mo">Mar</div></div>
+                <div class="appt-body"><div class="appt-title">General Consultation</div><div class="appt-dr">Dr. Smith · Internal Medicine</div></div>
+                <div class="appt-trail"><span class="chip tonal" style="font-size:12px;padding:3px 10px" id="ab-u">Coming up</span></div>
+              </div>
+              <div class="divider" style="margin:0 0 0 64px"></div>
+              <div class="appt-row" onclick="openScript('followup')">
+                <div class="appt-date"><div class="appt-day">01</div><div class="appt-mo">Apr</div></div>
+                <div class="appt-body"><div class="appt-title">Cardiology Follow-up</div><div class="appt-dr">Dr. Jones · Cardiology</div></div>
+                <div class="appt-trail"><span class="chip tonal" style="font-size:12px;padding:3px 10px">Coming up</span></div>
+              </div>
+            </div>
+            <div class="sec-hd"><span id="ap-ps">Previous visits</span><span class="sec-ct">2</span></div>
+            <div class="md-card">
+              <div class="appt-row" onclick="openScript('past1')">
+                <div class="appt-date" style="background:var(--success-light)"><div class="appt-day" style="color:var(--success);font-size:20px">10</div><div class="appt-mo" style="color:var(--success)">Mar</div></div>
+                <div class="appt-body"><div class="appt-title">Diabetes Management</div><div class="appt-dr">Dr. Smith · New medicines added</div></div>
+                <div class="appt-trail"><span class="chip green" style="font-size:12px;padding:3px 10px" id="ab-n">New Rx</span></div>
+              </div>
+              <div class="divider" style="margin:0 0 0 64px"></div>
+              <div class="appt-row" onclick="openScript('past2')">
+                <div class="appt-date" style="background:var(--surface-3)"><div class="appt-day" style="color:var(--on-s3);font-size:20px">22</div><div class="appt-mo" style="color:var(--on-s3)">Feb</div></div>
+                <div class="appt-body"><div class="appt-title">Respiratory Infection</div><div class="appt-dr">Dr. Smith · Resolved</div></div>
+                <div class="appt-trail"><span class="chip gray" style="font-size:12px;padding:3px 10px" id="ab-d">Done</span></div>
+              </div>
+            </div>
+            <div class="pad-bottom"></div>
+            <!-- Script sheet -->
+            <div class="overlay" id="script-ov">
+              <div class="sheet">
+                <div class="sheet-handle"></div>
+                <div class="sheet-hd" style="border-radius:0">
+                  <button class="sh-back" onclick="closeSheet('script-ov')"><svg width="18" height="18" fill="none"><path d="M13 4l-7 7 7 7" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button>
+                  <span class="sh-title" id="sc-title">Visit notes</span>
+                  <button class="sh-close" onclick="closeSheet('script-ov')">&#x2715;</button>
+                </div>
+                <div class="sh-body" id="sc-body"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 9. RX FORM (DOCTOR) -->
+          <div class="screen" id="screen-rx">
+            <div class="top-bar">
+              <button class="tb-back" onclick="rxGoBack()" aria-label="Back"><svg width="20" height="20" fill="none"><path d="M14 5l-7 7 7 7" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+              <div class="tb-titles"><div class="tb-title" id="rx-title">New Prescription</div><div class="tb-sub" id="rx-stlbl">Step 1 of 4</div></div>
+            </div>
+            <div class="step-row">
+              <div class="step-dot act" id="sd0"></div>
+              <div class="step-dot" id="sd1"></div>
+              <div class="step-dot" id="sd2"></div>
+              <div class="step-dot" id="sd3"></div>
+            </div>
+            <!-- Step 0 -->
+            <div id="rx-s0" style="flex:1;padding:4px 20px 20px;overflow-y:auto">
+              <div style="font-size:22px;font-weight:900;color:var(--on-surface);margin-bottom:4px" id="rxs0h">Who is this for?</div>
+              <div style="font-size:15px;color:var(--on-s3);margin-bottom:22px;line-height:1.5" id="rxs0s">Let us start with the patient's details.</div>
+              <div class="tf"><label id="rx-ln">Patient's full name</label><input type="text" id="rx-name" placeholder="e.g. María García" oninput="chkRx(0)"></div>
+              <div class="tf"><label id="rx-ld">Patient's date of birth</label><input type="text" id="rx-dob" placeholder="e.g. 15/06/1978" oninput="chkRx(0)"></div>
+              <div class="tf"><label id="rx-li">Medical record number</label><input type="text" id="rx-id" placeholder="e.g. MX-000-8821" oninput="chkRx(0)"></div>
+              <div style="margin-top:auto;display:flex;gap:10px">
+                <button class="btn btn-outlined btn-sm" style="width:auto;padding:0 20px" onclick="navTo('welcome')" id="rx-cxl0"><span id="rx-cxt">Cancel</span></button>
+                <button class="btn btn-filled" id="rx-n0" onclick="rxNext(1)" disabled><span id="rxnt0">Continue &#x2192;</span></button>
+              </div>
+            </div>
+            <!-- Step 1 -->
+            <div id="rx-s1" style="display:none;flex:1;padding:4px 20px 20px;overflow-y:auto">
+              <div style="font-size:22px;font-weight:900;color:var(--on-surface);margin-bottom:4px" id="rxs1h">Which medicine?</div>
+              <div style="font-size:15px;color:var(--on-s3);margin-bottom:22px;line-height:1.5" id="rxs1s">Choose the drug and how many tablets to prescribe.</div>
+              <div class="tf"><label id="rx-ldr">Medicine name</label>
+                <select id="rx-drug" onchange="chkRx(1)">
+                  <option value="">— Select a medicine —</option>
+                  <option>Amoxicillin 500mg</option><option>Metformin 850mg</option>
+                  <option>Lisinopril 10mg</option><option>Atorvastatin 20mg</option><option>Omeprazole 20mg</option>
+                </select>
+              </div>
+              <div class="tf"><label id="rx-lq">Number of tablets</label><input type="number" id="rx-qty" placeholder="e.g. 30" min="1" max="360" oninput="chkRx(1)"></div>
+              <div style="margin-top:auto;display:flex;gap:10px">
+                <button class="btn btn-outlined btn-sm" style="width:auto;padding:0 20px" onclick="rxNext(0)"><span id="rxb1">&#x2190; Go back</span></button>
+                <button class="btn btn-filled" id="rx-n1" onclick="rxNext(2)" disabled><span id="rxnt1">Continue &#x2192;</span></button>
+              </div>
+            </div>
+            <!-- Step 2 -->
+            <div id="rx-s2" style="display:none;flex:1;padding:4px 20px 20px;overflow-y:auto">
+              <div style="font-size:22px;font-weight:900;color:var(--on-surface);margin-bottom:4px" id="rxs2h">When should they take it?</div>
+              <div style="font-size:15px;color:var(--on-s3);margin-bottom:16px;line-height:1.5" id="rxs2s">Choose the times that fit the patient's day.</div>
+              <div style="font-size:13px;font-weight:700;color:var(--primary);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px" id="rx-lsg">Times of day</div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px">
+                <div class="chip" onclick="togSeg(this,'Breakfast')" aria-pressed="false"><svg width="14" height="14" fill="none"><circle cx="7" cy="7" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 1.5v1M7 11.5v1M1.5 7h1M11.5 7h1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="ch-m">With breakfast</span></div>
+                <div class="chip" onclick="togSeg(this,'Lunch')" aria-pressed="false"><svg width="14" height="14" fill="none"><path d="M2 10h10M7 7.5V5.5M5 7.5a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="ch-a">After lunch</span></div>
+                <div class="chip" onclick="togSeg(this,'Dinner')" aria-pressed="false"><svg width="14" height="14" fill="none"><path d="M7 2C4.8 2 3 3.8 3 6s1.8 4 4 4a4 4 0 002.8-1.1A4.5 4.5 0 017 2z" stroke="currentColor" stroke-width="1.5"/></svg><span id="ch-e">With dinner</span></div>
+                <div class="chip" onclick="togSeg(this,'Bedtime')" aria-pressed="false"><svg width="14" height="14" fill="none"><circle cx="7" cy="7" r="4" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 1.2"/><path d="M7 5v2l1.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="ch-n">At bedtime</span></div>
+              </div>
+              <div id="seg-note" style="display:none;margin-top:10px;font-size:13px;color:var(--primary);background:var(--primary-cont);padding:10px 14px;border-radius:var(--r-md)"></div>
+              <div style="height:16px"></div>
+              <div class="tf"><label id="rx-ldur">For how many days?</label><input type="number" id="rx-dur" placeholder="e.g. 7" min="1" max="365" oninput="chkRx(2)"></div>
+              <div style="margin-top:auto;display:flex;gap:10px">
+                <button class="btn btn-outlined btn-sm" style="width:auto;padding:0 20px" onclick="rxNext(1)"><span id="rxb2">&#x2190; Go back</span></button>
+                <button class="btn btn-filled" id="rx-n2" onclick="rxNext(3)" disabled><span id="rxnt2">Continue &#x2192;</span></button>
+              </div>
+            </div>
+            <!-- Step 3 -->
+            <div id="rx-s3" style="display:none;flex:1;padding:4px 20px 20px;overflow-y:auto">
+              <div style="font-size:22px;font-weight:900;color:var(--on-surface);margin-bottom:4px" id="rxs3h">Any extra notes?</div>
+              <div style="font-size:15px;color:var(--on-s3);margin-bottom:22px;line-height:1.5" id="rxs3s">Add special instructions for the patient, then review everything.</div>
+              <div class="tf"><label id="rx-lno">Special instructions for the patient</label><textarea id="rx-notes" rows="3" placeholder="e.g. Take with food. Avoid alcohol." style="resize:vertical;line-height:1.6"></textarea></div>
+              <div class="tf"><label id="rx-lal">Any known allergies?</label><input type="text" id="rx-allerg" placeholder="e.g. Penicillin, Sulfa…"></div>
+              <div style="margin-top:auto;display:flex;gap:10px">
+                <button class="btn btn-outlined btn-sm" style="width:auto;padding:0 20px" onclick="rxNext(2)"><span id="rxb3">&#x2190; Go back</span></button>
+                <button class="btn btn-filled" onclick="openRxConfirm()"><span id="rx-review">Review before sending</span></button>
+              </div>
+            </div>
+            <!-- RX Confirm popup -->
+            <div class="overlay center" id="rx-confirm-ov">
+              <div class="popup" style="max-width:358px">
+                <div class="sheet-hd" style="border-radius:var(--r-lg) var(--r-lg) 0 0">
+                  <button class="sh-back" onclick="closeSheet('rx-confirm-ov')"><svg width="18" height="18" fill="none"><path d="M13 4l-7 7 7 7" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button>
+                  <span class="sh-title" id="rxc-title">Does everything look right?</span>
+                  <button class="sh-close" onclick="closeSheet('rx-confirm-ov')">&#x2715;</button>
+                </div>
+                <div class="sh-body">
+                  <div class="cfm-row"><span class="cfm-key" id="ck-pt">Patient</span><span class="cfm-val" id="cv-pt">—</span></div>
+                  <div class="cfm-row"><span class="cfm-key" id="ck-dr">Medicine</span><span class="cfm-val" id="cv-dr">—</span></div>
+                  <div class="cfm-row"><span class="cfm-key" id="ck-qt">Tablets</span><span class="cfm-val" id="cv-qt">—</span></div>
+                  <div class="cfm-row"><span class="cfm-key" id="ck-sc">When to take</span><span class="cfm-val" id="cv-sc">—</span></div>
+                  <div class="cfm-row"><span class="cfm-key" id="ck-du">For how long</span><span class="cfm-val" id="cv-du">—</span></div>
+                  <div class="warn-box">
+                    <svg width="18" height="18" fill="none" style="flex-shrink:0;margin-top:2px"><path d="M9 3l7 12H2L9 3z" stroke="var(--error)" stroke-width="1.8" stroke-linejoin="round" fill="none"/><path d="M9 9v3" stroke="var(--error)" stroke-width="1.8" stroke-linecap="round"/><circle cx="9" cy="14" r="1" fill="var(--error)"/></svg>
+                    <div class="warn-txt" id="rx-warn">Please double-check the timing. "With dinner" means 5–9 PM, not bedtime.</div>
+                  </div>
+                  <div style="display:flex;gap:10px;margin-top:6px">
+                    <button class="btn btn-outlined btn-sm" style="flex:1" onclick="closeSheet('rx-confirm-ov')"><span id="rx-edit">Make a change</span></button>
+                    <button class="btn btn-filled btn-sm green" style="flex:1" onclick="submitRx()"><span id="rx-send">Send prescription</span></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- SNACKBAR — rx sent confirmation only -->
+            <div class="snackbar" id="snackbar-rx">
+              <span id="snack-rx-msg">Prescription sent successfully.</span>
+            </div>
+          </div>
+
+          <!-- 10. PATIENTS (DOCTOR) -->
+          <div class="screen" id="screen-patients">
+            <div class="top-bar">
+              <button class="tb-back" onclick="navTo('welcome')" aria-label="Back"><svg width="20" height="20" fill="none"><path d="M14 5l-7 7 7 7" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+              <div class="tb-titles"><div class="tb-title" id="pt-title">My Patients</div><div class="tb-sub">A–Z · 5 patients</div></div>
+            </div>
+            <div class="search-wrap">
+              <svg width="18" height="18" fill="none"><circle cx="8" cy="8" r="5.5" stroke="var(--on-s3)" stroke-width="1.8"/><path d="M13 13l3 3" stroke="var(--on-s3)" stroke-width="2" stroke-linecap="round"/></svg>
+              <input type="text" id="pt-search" placeholder="Search by name…" oninput="filterPt()" aria-label="Search patients">
+            </div>
+            <div id="pt-list" style="flex:1;overflow-y:auto;padding-bottom:90px">
+              <div class="alpha-hd">A</div>
+              <div class="md-card" style="margin-bottom:4px">
+                <div class="list-item" onclick="openPt('alvarez')" data-name="alvarez maría">
+                  <div class="pt-avatar">MA</div>
+                  <div class="li-body"><div class="li-h">Alvarez, María</div><div class="li-s">DOB: 15/06/1978 · F · #MX-001</div></div>
+                  <span class="chip tonal" style="font-size:12px;padding:3px 10px">Active</span>
+                </div>
+              </div>
+              <div class="alpha-hd">G</div>
+              <div class="md-card" style="margin-bottom:4px">
+                <div class="list-item" onclick="openPt('garcia')" data-name="garcía carlos">
+                  <div class="pt-avatar">CG</div>
+                  <div class="li-body"><div class="li-h">García, Carlos</div><div class="li-s">DOB: 03/11/1965 · M · #MX-002</div></div>
+                  <span class="chip tonal" style="font-size:12px;padding:3px 10px">Active</span>
+                </div>
+              </div>
+              <div class="alpha-hd">L</div>
+              <div class="md-card" style="margin-bottom:4px">
+                <div class="list-item" onclick="openPt('lopez')" data-name="lópez sofía">
+                  <div class="pt-avatar" style="background:var(--warning)">SL</div>
+                  <div class="li-body"><div class="li-h">López, Sofía</div><div class="li-s">DOB: 22/04/1990 · F · #MX-003</div></div>
+                  <span class="chip orange" style="font-size:12px;padding:3px 10px">New</span>
+                </div>
+              </div>
+              <div class="alpha-hd">R</div>
+              <div class="md-card" style="margin-bottom:4px">
+                <div class="list-item" onclick="openPt('ramirez')" data-name="ramírez jorge">
+                  <div class="pt-avatar" style="background:var(--secondary-dark)">JR</div>
+                  <div class="li-body"><div class="li-h">Ramírez, Jorge</div><div class="li-s">DOB: 08/09/1982 · M · #MX-004</div></div>
+                  <span class="chip gray" style="font-size:12px;padding:3px 10px">Pending</span>
+                </div>
+              </div>
+              <div class="alpha-hd">V</div>
+              <div class="md-card" style="margin-bottom:4px">
+                <div class="list-item" onclick="openPt('vega')" data-name="vega laura">
+                  <div class="pt-avatar">LV</div>
+                  <div class="li-body"><div class="li-h">Vega, Laura</div><div class="li-s">DOB: 30/01/1957 · F · #MX-005</div></div>
+                  <span class="chip tonal" style="font-size:12px;padding:3px 10px">Active</span>
+                </div>
+              </div>
+            </div>
+            <!-- Patient detail sheet -->
+            <div class="overlay" id="pt-ov">
+              <div class="sheet">
+                <div class="sheet-handle"></div>
+                <div class="sheet-hd" style="border-radius:0">
+                  <button class="sh-back" onclick="closeSheet('pt-ov')"><svg width="18" height="18" fill="none"><path d="M13 4l-7 7 7 7" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button>
+                  <div style="flex:1"><div class="sh-title" id="pd-name">Patient</div><div style="font-size:12px;color:rgba(255,255,255,.65);margin-top:1px" id="pd-sub"></div></div>
+                  <div class="pt-avatar" id="pd-av" style="width:36px;height:36px;font-size:12px">?</div>
+                  <button class="sh-close" onclick="closeSheet('pt-ov')" style="margin-left:8px">&#x2715;</button>
+                </div>
+                <div class="sh-body" id="pd-body"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BOTTOM NAVIGATION -->
+          <nav class="nav-bar" id="nav-bar" aria-label="Main navigation">
+            <button class="nav-item" id="ntab-live" onclick="navTo('live')">
+              <div class="nav-pill"><svg class="nav-ico" width="22" height="22" fill="none"><rect x="8" y="2" width="6" height="10" rx="3" stroke="currentColor" stroke-width="2"/><path d="M5 10a6 6 0 0012 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="11" y1="16" x2="11" y2="20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="20" x2="14" y2="20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+              <span class="nav-lbl" id="nl-live">Translate</span>
+            </button>
+            <button class="nav-item" id="ntab-2" onclick="navTab2()">
+              <div class="nav-pill"><svg class="nav-ico" id="nic-2" width="22" height="22" fill="none"><rect x="3" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 10h16" stroke="currentColor" stroke-width="2"/><path d="M8 2v3M14 2v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 14l2.5 2.5L15 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+              <span class="nav-lbl" id="nl-2">Doses</span>
+            </button>
+            <button class="nav-item" id="ntab-3" onclick="navTab3()">
+              <div class="nav-pill"><svg class="nav-ico" id="nic-3" width="22" height="22" fill="none"><rect x="2" y="7" width="18" height="8" rx="4" stroke="currentColor" stroke-width="2"/><line x1="11" y1="7" x2="11" y2="15" stroke="currentColor" stroke-width="2"/></svg></div>
+              <span class="nav-lbl" id="nl-3">Medicines</span>
+            </button>
+            <button class="nav-item" id="ntab-appt" onclick="navTo('appt')">
+              <div class="nav-pill"><svg class="nav-ico" width="22" height="22" fill="none"><rect x="3" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 10h16" stroke="currentColor" stroke-width="2"/><path d="M8 2v3M14 2v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="11" cy="14.5" r="1.5" fill="currentColor"/><circle cx="7" cy="14.5" r="1.5" fill="currentColor"/><circle cx="15" cy="14.5" r="1.5" fill="currentColor"/></svg></div>
+              <span class="nav-lbl" id="nl-appt">Visits</span>
+            </button>
+          </nav>
+
+          <!-- ══ ALARM FIRE MODAL ══════════════════════════════════════════════ -->
+          <div class="overlay center" id="alarm-ov" style="z-index:200">
+            <div class="popup" style="max-width:340px;padding:0;overflow:hidden">
+
+              <!-- Header with animated ring -->
+              <div class="alarm-modal-hd">
+                <div class="alarm-modal-ring">
+                  <svg id="alarm-ring-svg" width="120" height="120" viewBox="0 0 120 120">
+                    <circle cx="60" cy="60" r="44" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1.5"/>
+                    <circle id="alarm-ring-pulse" cx="60" cy="60" r="26" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1.5"/>
+                  </svg>
+                </div>
+                <!-- confetti container -->
+                <div id="alarm-confetti" style="position:absolute;inset:0;pointer-events:none;overflow:hidden"></div>
+                <div style="position:relative;z-index:2">
+                  <div style="font-size:38px;margin-bottom:8px">💊</div>
+                  <div style="font-size:19px;font-weight:900;color:#fff;line-height:1.2" id="alarm-drug-name">Metformin 850mg</div>
+                  <div style="font-size:13px;color:rgba(255,255,255,.65);margin-top:5px" id="alarm-drug-sub">1 tablet · with breakfast · 6:00</div>
+                </div>
+              </div>
+
+              <!-- Gamification stats row -->
+              <div style="background:var(--primary-cont);padding:14px 20px;display:flex;align-items:center;justify-content:space-between">
+                <div style="text-align:center">
+                  <div style="font-size:20px;font-weight:900;color:var(--primary)" id="alarm-streak-num">🔥 5</div>
+                  <div style="font-size:11px;font-weight:700;color:var(--on-s3);letter-spacing:.04em;text-transform:uppercase;margin-top:2px">Streak</div>
+                </div>
+                <div style="width:1px;height:32px;background:var(--outline)"></div>
+                <div style="text-align:center">
+                  <div style="font-size:20px;font-weight:900;color:var(--primary)" id="alarm-total-num">42</div>
+                  <div style="font-size:11px;font-weight:700;color:var(--on-s3);letter-spacing:.04em;text-transform:uppercase;margin-top:2px">Total</div>
+                </div>
+                <div style="width:1px;height:32px;background:var(--outline)"></div>
+                <div style="text-align:center">
+                  <div style="font-size:20px;font-weight:900;color:var(--success)" id="alarm-pct-num">96%</div>
+                  <div style="font-size:11px;font-weight:700;color:var(--on-s3);letter-spacing:.04em;text-transform:uppercase;margin-top:2px">Adherence</div>
+                </div>
+              </div>
+
+              <!-- XP level bar -->
+              <div style="padding:14px 20px 10px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
+                  <span style="font-size:12px;font-weight:700;color:var(--primary)">Level <span id="alarm-level">3</span> — Health Hero</span>
+                  <span style="font-size:12px;color:var(--on-s3)" id="alarm-xp-label">210 / 300 XP</span>
+                </div>
+                <div style="height:8px;background:var(--surface-3);border-radius:var(--r-full);overflow:hidden">
+                  <div id="alarm-xp-bar" style="height:100%;width:70%;background:linear-gradient(90deg,var(--primary),var(--secondary-dark));border-radius:var(--r-full);transition:width .6s cubic-bezier(.4,0,.2,1)"></div>
+                </div>
+              </div>
+
+              <!-- XP reward preview -->
+              <div style="margin:0 20px 14px;background:var(--success-light);border-radius:var(--r-md);padding:10px 14px;display:flex;align-items:center;gap:10px">
+                <svg width="18" height="18" fill="none"><path d="M9 2l1.8 3.6L15 6.3l-3 2.9.7 4.1L9 11.2l-3.7 2 .7-4.1L3 6.3l4.2-.7L9 2z" stroke="var(--success)" stroke-width="1.6" stroke-linejoin="round"/></svg>
+                <span style="font-size:13px;font-weight:500;color:var(--success)">Confirm to earn <strong>+<span id="alarm-xp-gain">10</span> XP</strong> and extend your streak</span>
+              </div>
+
+              <!-- Actions -->
+              <div style="padding:0 20px 20px;display:flex;gap:10px">
+                <button class="btn btn-outlined btn-sm" style="flex:1;font-size:14px" onclick="dismissAlarm()">
+                  <svg width="16" height="16" fill="none"><path d="M8 3v5l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.8"/></svg>
+                  <span id="alarm-snooze-lbl">Snooze 10 min</span>
+                </button>
+                <button class="btn btn-filled btn-sm green" style="flex:1;font-size:14px" onclick="confirmAlarmTaken()">
+                  <svg width="16" height="16" fill="none"><path d="M2.5 8.5l4 4 7-7" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg>
+                  I took it!
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ══ ACCOMPLISHMENT PANEL (slides in after dose confirm) ══════════ -->
+          <div id="accom-ov" class="overlay center" style="z-index:210;display:none">
+            <div class="popup" style="max-width:340px;padding:0;overflow:hidden">
+              <!-- Celebration header -->
+              <div style="background:linear-gradient(135deg,var(--primary-dark),var(--primary));padding:28px 20px 22px;text-align:center;position:relative;overflow:hidden">
+                <div id="accom-confetti" style="position:absolute;inset:0;pointer-events:none"></div>
+                <div style="font-size:52px;margin-bottom:10px;position:relative;z-index:2" id="accom-emoji">🏅</div>
+                <div style="font-size:22px;font-weight:900;color:#fff;line-height:1.2;position:relative;z-index:2" id="accom-title">Dose confirmed!</div>
+                <div style="font-size:14px;color:rgba(255,255,255,.7);margin-top:6px;position:relative;z-index:2" id="accom-sub">You're building a great habit</div>
+              </div>
+              <!-- XP gained -->
+              <div style="padding:16px 20px 12px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--outline)">
+                <div style="width:44px;height:44px;border-radius:var(--r-full);background:var(--primary-cont);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                  <svg width="22" height="22" fill="none"><path d="M11 2l2.2 4.4L18 7.3l-3.5 3.4.8 4.8L11 13.2l-4.3 2.3.8-4.8L4 7.3l4.8-.9L11 2z" stroke="var(--primary)" stroke-width="1.7" stroke-linejoin="round"/></svg>
+                </div>
+                <div style="flex:1">
+                  <div style="font-size:13px;color:var(--on-s3);margin-bottom:2px">XP earned this dose</div>
+                  <div style="font-size:24px;font-weight:900;color:var(--primary)" id="accom-xp-gained">+10 XP</div>
+                </div>
+                <div style="text-align:right">
+                  <div style="font-size:12px;color:var(--on-s3)">Total XP</div>
+                  <div style="font-size:16px;font-weight:700;color:var(--primary)" id="accom-xp-total">220 XP</div>
+                </div>
+              </div>
+              <!-- Today's wins list -->
+              <div style="padding:12px 20px">
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--on-s3);margin-bottom:10px">Today's wins</div>
+                <div id="accom-wins-list" style="display:flex;flex-direction:column;gap:6px"></div>
+              </div>
+              <!-- Level progress -->
+              <div style="padding:0 20px 6px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                  <span style="font-size:12px;font-weight:700;color:var(--primary)">Level <span id="accom-level">3</span> — <span id="accom-level-name">Health Hero</span></span>
+                  <span style="font-size:12px;color:var(--on-s3)" id="accom-xp-bar-lbl">220 / 300</span>
+                </div>
+                <div style="height:8px;background:var(--surface-3);border-radius:var(--r-full);overflow:hidden">
+                  <div id="accom-xp-bar" style="height:100%;width:73%;background:linear-gradient(90deg,var(--primary),var(--secondary-dark));border-radius:var(--r-full);transition:width .8s cubic-bezier(.4,0,.2,1)"></div>
+                </div>
+              </div>
+              <!-- Streak bar -->
+              <div style="margin:12px 20px 20px;background:var(--primary-cont);border-radius:var(--r-md);padding:12px 16px;display:flex;align-items:center;gap:10px">
+                <span style="font-size:22px">🔥</span>
+                <div>
+                  <div style="font-size:14px;font-weight:700;color:var(--primary)"><span id="accom-streak">6</span>-day streak</div>
+                  <div style="font-size:12px;color:var(--on-s3);margin-top:1px" id="accom-streak-sub">Keep it up — 1 day to your weekly badge!</div>
+                </div>
+              </div>
+              <!-- Close -->
+              <div style="padding:0 20px 20px">
+                <button class="btn btn-filled" onclick="closeAccom()" style="height:52px;font-size:15px">
+                  <svg width="18" height="18" fill="none"><path d="M4 10l4 4 8-8" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg>
+                  Done — great work!
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ══ ALARM SET SHEET (per-dose inline alarm setter) ═════════════ -->
+          <div class="overlay" id="alarm-set-ov" style="z-index:150">
+            <div class="alarm-set-sheet">
+              <div class="sheet-handle"></div>
+              <div class="sheet-hd" style="border-radius:0">
+                <button class="sh-back" onclick="closeAlarmSet()"><svg width="18" height="18" fill="none"><path d="M13 4l-7 7 7 7" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button>
+                <div style="flex:1">
+                  <div class="sh-title" id="aset-title">Set alarm</div>
+                  <div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:2px" id="aset-sub">Metformin 850mg · 6:00</div>
+                </div>
+                <button class="sh-close" onclick="closeAlarmSet()">&#x2715;</button>
+              </div>
+              <div class="sh-body" style="padding:20px 20px 32px">
+                <!-- Time picker -->
+                <div style="margin-bottom:20px">
+                  <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--on-s3);margin-bottom:8px">Alarm time</div>
+                  <input type="time" id="aset-time" style="width:100%;padding:16px;background:var(--surface-3);border:none;border-bottom:2px solid var(--primary-light);border-radius:var(--r-sm) var(--r-sm) 0 0;font-size:24px;font-family:var(--ff);color:var(--on-surface);outline:none;text-align:center">
+                </div>
+                <!-- Snooze -->
+                <div style="margin-bottom:20px">
+                  <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--on-s3);margin-bottom:8px">Snooze duration</div>
+                  <div style="display:flex;gap:8px" id="aset-snooze-btns">
+                    <button class="chip" onclick="selectSnooze(this,5)">5 min</button>
+                    <button class="chip sel" onclick="selectSnooze(this,10)">10 min</button>
+                    <button class="chip" onclick="selectSnooze(this,15)">15 min</button>
+                    <button class="chip" onclick="selectSnooze(this,30)">30 min</button>
+                  </div>
+                </div>
+                <!-- Repeat -->
+                <div style="margin-bottom:24px">
+                  <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--on-s3);margin-bottom:8px">Repeat</div>
+                  <div style="display:flex;gap:6px" id="aset-days">
+                    <button class="chip sel" onclick="toggleDay(this)">Every day</button>
+                    <button class="chip" onclick="toggleDay(this)">Weekdays</button>
+                    <button class="chip" onclick="toggleDay(this)">Custom</button>
+                  </div>
+                </div>
+                <!-- Toggle + action -->
+                <div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-top:1px solid var(--outline);margin-bottom:14px">
+                  <div style="flex:1">
+                    <div style="font-size:15px;font-weight:500;color:var(--on-surface)">Alarm active</div>
+                    <div style="font-size:12px;color:var(--on-s3);margin-top:2px" id="aset-status-lbl">Currently off</div>
+                  </div>
+                  <label style="cursor:pointer;position:relative;width:46px;height:26px;display:block">
+                    <input type="checkbox" id="aset-toggle" onchange="toggleAlarmFromSet(this.checked)" style="opacity:0;width:0;height:0;position:absolute">
+                    <span id="aset-track" style="position:absolute;inset:0;border-radius:13px;background:var(--outline);transition:background .2s"></span>
+                    <span id="aset-thumb" style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.25);transition:left .2s"></span>
+                  </label>
+                </div>
+                <button class="btn btn-filled" onclick="saveAlarmSet()" style="height:52px">
+                  <svg width="18" height="18" fill="none"><path d="M8 2a6 6 0 100 12A6 6 0 008 2z" stroke="white" stroke-width="1.8"/><path d="M8 5v3l2 1.5" stroke="white" stroke-width="1.8" stroke-linecap="round"/><path d="M3 17l1.5-1.5M13 17l-1.5-1.5" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+                  Save alarm
+                </button>
+              </div>
+            </div>
+          </div>
+
+</div>
+
+<script>
+let role=null,lang='en',rxStep=0,segs=[],snackTmr=null;
+let doses=[true,false,true,false,false],lastDoses=null,loggedName='';
+
+const T={
+  en:{
+    spTitle:'Your health,\nin good hands.',spSub:'Choose your preferred language to continue.',spCta:'Continue',
+    rsTitle:'Who are you?',rsSub:'Select your role to continue',rsH:'Welcome',rsS:'Please tell us who you are so we can show you the right tools.',
+    rcPt:'I am a patient',rcPtS:'Check my medicines & upcoming visits',rcDr:'I am a doctor',rcDrS:'Manage patients & write prescriptions',
+    lpTitle:'Welcome back',lpSub:'Your health information is safe with us',lpChip:'Patient',
+    lpNote:'Please fill in all three fields to continue. We use these to find your records safely.',
+    lpLn:'Your full name',lpLd:'Your date of birth',lpLm:'Your medical record number',
+    lpBtxt:'Take me in',lpFt:'Are you a doctor? ',lpSw:'Sign in as a doctor instead',
+    ldTitle:'Good to see you, Doctor',ldSub:'Your patients are waiting for you',ldChip:'Doctor',
+    ldNote:'Please enter your name and license number to access the dashboard.',
+    ldLn:'Your full name',ldLi:'Your license number',ldBtxt:'Enter the dashboard',
+    ldFt:'Not a doctor? ',ldSw:'Sign in as a patient instead',
+    whGreet:'Good morning',whRole:'Patient',qaTitle:'What would you like to do?',
+    qaDoses:"See today's doses",qaDosesS:'Check what to take now',qaTrans:'Translate',qaTransS:'Start a live session',
+    qaMeds:'My medicines',qaMedsS:'View & learn about them',qaAppt:'My visits',qaApptS:'Upcoming & past',
+    qaDtitle:'What would you like to do?',qaDlive:'Translate now',qaDliveS:'Live session',
+    qaDrx:'New prescription',qaDrxS:'Write & send',qaDpt:'My patients',qaDptS:'View & manage',
+    qaDappt:'Appointments',qaDapptS:'Schedule & history',
+    lbTitle:'Live Translate',lbSub:'Real-time bilingual conversation',slL:'Listening',slT:'Translating',slS:'Saving',
+    recStart:'Start the conversation',recStop:'Stop recording',
+    trTitle:'My Doses',trSub:'Monday, March 16 — your medicines today',hLbl:'Your medicines today',hStreak:'Great job — keep it up!',
+    dgM:'With breakfast',dgA:'After lunch',dgE:'With dinner',dgN:'At bedtime',
+    dm0:'1 tablet · with breakfast',dm1:'1 tablet · before eating',dm2:'1 capsule · before lunch',dm3:'1 tablet · with dinner',dm4:'1 tablet · before sleep',
+    meTitle:'My Medicines',meSub:'Your current prescriptions',meSh:'Your current medicines',
+    mhd0:'Twice a day · morning & evening',mhd1:'Three times a day · 7 days',mhd2:'Once a day · morning',
+    mhb0:'Taking now',mhb1:'Finished',mhb2:'Taking now',
+    apTitle:'My Visits',apSub:'Upcoming & past appointments',apNl:'Your next appointment',
+    apNs:'Dr. Smith is expecting you at 10:30 AM on Thursday, March 19',
+    apVbt:'Read the visit notes',apUs:'Coming up',apPs:'Previous visits',abU:'Coming up',abN:'New Rx',abD:'Done',
+    scTitle:'Visit notes',rxTitle:'New Prescription',
+    rxs0h:'Who is this for?',rxs0s:"Let us start with the patient's details.",
+    rxs1h:'Which medicine?',rxs1s:'Choose the drug and how many tablets to prescribe.',
+    rxs2h:'When should they take it?',rxs2s:"Choose the times that fit the patient's day.",
+    rxs3h:'Any extra notes?',rxs3s:'Add special instructions for the patient, then review everything.',
+    rxLn:"Patient's full name",rxLd:"Patient's date of birth",rxLi:'Medical record number',
+    rxLdr:'Medicine name',rxLq:'Number of tablets',rxLsg:'Times of day',rxLdur:'For how many days?',
+    rxLno:'Special instructions for the patient',rxLal:'Any known allergies?',
+    chM:'With breakfast',chA:'After lunch',chE:'With dinner',chN:'At bedtime',
+    rxCxt:'Cancel',rxnt0:'Continue →',rxnt1:'Continue →',rxnt2:'Continue →',
+    rxB1:'← Go back',rxB2:'← Go back',rxB3:'← Go back',rxReview:'Review before sending',
+    rxcTitle:'Does everything look right?',rxWarn:'"With dinner" means 5–9 PM, not bedtime. Please double-check.',
+    rxEdit:'Make a change',rxSend:'Send prescription',
+    ckPt:'Patient',ckDr:'Medicine',ckQt:'Tablets',ckSc:'When to take',ckDu:'For how long',
+    ptTitle:'My Patients',nlLive:'Translate',nl2P:'Doses',nl2D:'Prescribe',nl3P:'Medicines',nl3D:'Patients',nlAppt:'Visits',
+    snackMsg:'Got it — change saved.',segNote:'Dinner time means 5–9 PM — not bedtime.',pdRxBtn:'Write a prescription for this patient',
+    loTitle:'Sign out?',loBody:'You are signed in as',loBody2:'. Signing out will return you to the login screen.',loCancel:'Stay',loConfirm:'Sign out',loBtnLbl:'Sign out',
+  },
+  es:{
+    spTitle:'Tu salud,\nen buenas manos.',spSub:'Elige tu idioma preferido para continuar.',spCta:'Continuar',
+    rsTitle:'¿Quién eres?',rsSub:'Selecciona tu rol para continuar',rsH:'Bienvenido',rsS:'Por favor dinos quién eres para mostrarte las herramientas correctas.',
+    rcPt:'Soy paciente',rcPtS:'Ver mis medicamentos y citas',rcDr:'Soy doctor',rcDrS:'Gestionar pacientes y recetas',
+    lpTitle:'Bienvenido de vuelta',lpSub:'Tu información de salud está protegida',lpChip:'Paciente',
+    lpNote:'Por favor completa los tres campos. Los usamos para encontrar tu expediente de forma segura.',
+    lpLn:'Tu nombre completo',lpLd:'Tu fecha de nacimiento',lpLm:'Tu número de expediente',
+    lpBtxt:'Entrar',lpFt:'¿Eres doctor? ',lpSw:'Ingresar como doctor',
+    ldTitle:'Bienvenido, Doctor',ldSub:'Tus pacientes te esperan',ldChip:'Doctor',
+    ldNote:'Por favor ingresa tu nombre y cédula para acceder al panel.',
+    ldLn:'Tu nombre completo',ldLi:'Tu cédula profesional',ldBtxt:'Entrar al panel',
+    ldFt:'¿No eres doctor? ',ldSw:'Ingresar como paciente',
+    whGreet:'Buenos días',whRole:'Paciente',qaTitle:'¿Qué deseas hacer?',
+    qaDoses:'Ver mis dosis de hoy',qaDosesS:'Revisar qué tomar ahora',qaTrans:'Traducir',qaTransS:'Iniciar sesión en vivo',
+    qaMeds:'Mis medicamentos',qaMedsS:'Ver y aprender sobre ellos',qaAppt:'Mis citas',qaApptS:'Próximas y anteriores',
+    qaDtitle:'¿Qué deseas hacer?',qaDlive:'Traducir ahora',qaDliveS:'Sesión en vivo',
+    qaDrx:'Nueva receta',qaDrxS:'Escribir y enviar',qaDpt:'Mis pacientes',qaDptS:'Ver y gestionar',
+    qaDappt:'Citas',qaDapptS:'Agenda e historial',
+    lbTitle:'Traducción en vivo',lbSub:'Conversación bilingüe en tiempo real',slL:'Escuchando',slT:'Traduciendo',slS:'Guardando',
+    recStart:'Iniciar la conversación',recStop:'Detener grabación',
+    trTitle:'Mis Dosis',trSub:'Lunes, 16 de marzo — tus medicamentos de hoy',hLbl:'Tus medicamentos hoy',hStreak:'¡Muy bien — sigue así!',
+    dgM:'Con el desayuno',dgA:'Después del almuerzo',dgE:'Con la cena',dgN:'Al acostarse',
+    dm0:'1 tableta · con el desayuno',dm1:'1 tableta · antes de comer',dm2:'1 cápsula · antes del almuerzo',dm3:'1 tableta · con la cena',dm4:'1 tableta · antes de dormir',
+    meTitle:'Mis Medicamentos',meSub:'Tus recetas actuales',meSh:'Tus medicamentos actuales',
+    mhd0:'Dos veces al día · mañana y noche',mhd1:'Tres veces al día · 7 días',mhd2:'Una vez al día · mañana',
+    mhb0:'Tomando ahora',mhb1:'Terminado',mhb2:'Tomando ahora',
+    apTitle:'Mis Citas',apSub:'Próximas y anteriores',apNl:'Tu próxima cita',
+    apNs:'El Dr. Smith te espera a las 10:30 AM el jueves 19 de marzo',
+    apVbt:'Leer las notas de la visita',apUs:'Próximas',apPs:'Visitas anteriores',abU:'Próxima',abN:'Nueva Rx',abD:'Terminada',
+    scTitle:'Notas de la visita',rxTitle:'Nueva Receta',
+    rxs0h:'¿Para quién es?',rxs0s:'Comencemos con los datos del paciente.',
+    rxs1h:'¿Qué medicamento?',rxs1s:'Elige el fármaco y cuántas tabletas recetar.',
+    rxs2h:'¿Cuándo tomarlo?',rxs2s:'Elige los momentos del día que mejor se adapten.',
+    rxs3h:'¿Alguna indicación extra?',rxs3s:'Agrega instrucciones especiales y revisa todo.',
+    rxLn:'Nombre completo del paciente',rxLd:'Fecha de nacimiento del paciente',rxLi:'Número de expediente',
+    rxLdr:'Nombre del medicamento',rxLq:'Número de tabletas',rxLsg:'Momentos del día',rxLdur:'¿Por cuántos días?',
+    rxLno:'Instrucciones especiales para el paciente',rxLal:'¿Alguna alergia conocida?',
+    chM:'Con el desayuno',chA:'Después del almuerzo',chE:'Con la cena',chN:'Al acostarse',
+    rxCxt:'Cancelar',rxnt0:'Continuar →',rxnt1:'Continuar →',rxnt2:'Continuar →',
+    rxB1:'← Regresar',rxB2:'← Regresar',rxB3:'← Regresar',rxReview:'Revisar antes de enviar',
+    rxcTitle:'¿Todo está correcto?',rxWarn:'"Con la cena" significa 17–21h, no al acostarse. Por favor verifica.',
+    rxEdit:'Hacer un cambio',rxSend:'Enviar receta',
+    ckPt:'Paciente',ckDr:'Medicamento',ckQt:'Tabletas',ckSc:'Cuándo tomar',ckDu:'Por cuánto tiempo',
+    ptTitle:'Mis Pacientes',nlLive:'Traducir',nl2P:'Dosis',nl2D:'Recetar',nl3P:'Medicamentos',nl3D:'Pacientes',nlAppt:'Citas',
+    snackMsg:'Listo — cambio guardado.',segNote:'La cena corresponde a 17–21h — no es al acostarse.',pdRxBtn:'Escribir una receta para este paciente',
+    loTitle:'¿Cerrar sesión?',loBody:'Has iniciado sesión como',loBody2:'. Al cerrar sesión volverás a la pantalla de inicio.',loCancel:'Quedarme',loConfirm:'Cerrar sesión',loBtnLbl:'Salir',
+  }
+};
+const t=k=>(T[lang]||T.en)[k]||k;
+
+function setLang(l){
+  lang=l;
+  document.getElementById('lang-en').classList.toggle('active',l==='en');
+  document.getElementById('lang-es').classList.toggle('active',l==='es');
+  applyT();
+}
+
+function applyT(){
+  const ids=[
+    ['sp-title','spTitle'],['sp-sub','spSub'],['sp-cta','spCta'],
+    ['rs-title','rsTitle'],['rs-sub','rsSub'],['rs-h','rsH'],['rs-s','rsS'],
+    ['rc-pt','rcPt'],['rc-pt-s','rcPtS'],['rc-dr','rcDr'],['rc-dr-s','rcDrS'],
+    ['lp-title','lpTitle'],['lp-sub','lpSub'],['lp-chip','lpChip'],['lp-note','lpNote'],
+    ['lp-ln','lpLn'],['lp-ld','lpLd'],['lp-lm','lpLm'],['lp-btxt','lpBtxt'],['lp-ft','lpFt'],['lp-sw','lpSw'],
+    ['ld-title','ldTitle'],['ld-sub','ldSub'],['ld-chip','ldChip'],['ld-note','ldNote'],
+    ['ld-ln','ldLn'],['ld-li','ldLi'],['ld-btxt','ldBtxt'],['ld-ft','ldFt'],['ld-sw','ldSw'],
+    ['wh-greet','whGreet'],['qa-title','qaTitle'],
+    ['qa-doses','qaDoses'],['qa-doses-s','qaDosesS'],['qa-trans','qaTrans'],['qa-trans-s','qaTransS'],
+    ['qa-meds','qaMeds'],['qa-meds-s','qaMedsS'],['qa-appt','qaAppt'],['qa-appt-s','qaApptS'],
+    ['qa-dtitle','qaDtitle'],['qa-dlive','qaDlive'],['qa-dlive-s','qaDliveS'],
+    ['qa-drx','qaDrx'],['qa-drx-s','qaDrxS'],['qa-dpt','qaDpt'],['qa-dpt-s','qaDptS'],
+    ['qa-dappt','qaDappt'],['qa-dappt-s','qaDapptS'],
+    ['lb-title','lbTitle'],['lb-sub','lbSub'],['sl-l','slL'],['sl-t','slT'],['sl-s','slS'],['rec-lbl','recStart'],
+    ['tr-title','trTitle'],['tr-sub','trSub'],['h-lbl','hLbl'],['h-streak','hStreak'],
+    ['dg-m','dgM'],['dg-a','dgA'],['dg-e','dgE'],['dg-n','dgN'],
+    ['dm-0','dm0'],['dm-1','dm1'],['dm-2','dm2'],['dm-3','dm3'],['dm-4','dm4'],
+    ['me-title','meTitle'],['me-sub','meSub'],['me-sh','meSh'],
+    ['mhd-0','mhd0'],['mhd-1','mhd1'],['mhd-2','mhd2'],['mhb-0','mhb0'],['mhb-1','mhb1'],['mhb-2','mhb2'],
+    ['ap-title','apTitle'],['ap-sub','apSub'],['ap-nl','apNl'],['ap-ns','apNs'],['ap-vbt','apVbt'],
+    ['ap-us','apUs'],['ap-ps','apPs'],['ab-u','abU'],['ab-n','abN'],['ab-d','abD'],['sc-title','scTitle'],
+    ['rx-title','rxTitle'],['rxs0h','rxs0h'],['rxs0s','rxs0s'],['rxs1h','rxs1h'],['rxs1s','rxs1s'],
+    ['rxs2h','rxs2h'],['rxs2s','rxs2s'],['rxs3h','rxs3h'],['rxs3s','rxs3s'],
+    ['rx-ln','rxLn'],['rx-ld','rxLd'],['rx-li','rxLi'],['rx-ldr','rxLdr'],['rx-lq','rxLq'],
+    ['rx-lsg','rxLsg'],['rx-ldur','rxLdur'],['rx-lno','rxLno'],['rx-lal','rxLal'],
+    ['ch-m','chM'],['ch-a','chA'],['ch-e','chE'],['ch-n','chN'],
+    ['rx-cxt','rxCxt'],['rxnt0','rxnt0'],['rxnt1','rxnt1'],['rxnt2','rxnt2'],
+    ['rxb1','rxB1'],['rxb2','rxB2'],['rxb3','rxB3'],['rx-review','rxReview'],
+    ['rxc-title','rxcTitle'],['rx-warn','rxWarn'],['rx-edit','rxEdit'],['rx-send','rxSend'],
+    ['ck-pt','ckPt'],['ck-dr','ckDr'],['ck-qt','ckQt'],['ck-sc','ckSc'],['ck-du','ckDu'],
+    ['pt-title','ptTitle'],['nl-live','nlLive'],['nl-appt','nlAppt'],['snack-msg','snackMsg'],['pd-rx-btn','pdRxBtn'],
+    ['lo-title','loTitle'],['lo-cancel','loCancel'],['lo-confirm','loConfirm'],['lo-btn-lbl','loBtnLbl'],
+  ];
+  ids.forEach(([id,k])=>{const e=document.getElementById(id);if(e)e.textContent=t(k);});
+  if(role==='doctor'){
+    const e2=document.getElementById('nl-2');if(e2)e2.textContent=t('nl2D');
+    const e3=document.getElementById('nl-3');if(e3)e3.textContent=t('nl3D');
+  } else {
+    const e2=document.getElementById('nl-2');if(e2)e2.textContent=t('nl2P');
+    const e3=document.getElementById('nl-3');if(e3)e3.textContent=t('nl3P');
+  }
+  const sl=document.getElementById('rx-stlbl');
+  if(sl)sl.textContent=(lang==='es'?'Paso ':'Step ')+(rxStep+1)+' / 4';
+}
+
+function openLogout(){
+  const nb=document.getElementById('lo-body');
+  if(nb)nb.innerHTML=t('loBody')+' <span class="logout-name">'+loggedName+'</span>'+t('loBody2');
+  document.getElementById('logout-ov').classList.add('open');
+}
+
+function confirmLogout(){
+  // Reset state
+  role=null;loggedName='';
+  doses=[true,false,true,false,false];lastDoses=null;segs=[];rxStep=0;
+  // Clear login fields
+  ['lp-name','lp-dob','lp-mrn'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['ld-name','ld-id'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('lp-btn').disabled=true;
+  document.getElementById('ld-btn').disabled=true;
+  document.getElementById('logout-ov').classList.remove('open');
+  document.getElementById('nav-bar').style.display='none';
+  showScreen('splash');
+}
+
+function goRoleSelect(){showScreen('role');document.getElementById('nav-bar').style.display='none';}
+function goLogin(r){showScreen('login-'+r);}
+
+function chkLogin(r){
+  if(r==='p'){
+    const ok=document.getElementById('lp-name').value.trim()&&document.getElementById('lp-dob').value.trim()&&document.getElementById('lp-mrn').value.trim();
+    document.getElementById('lp-btn').disabled=!ok;
+  } else {
+    const ok=document.getElementById('ld-name').value.trim()&&document.getElementById('ld-id').value.trim();
+    document.getElementById('ld-btn').disabled=!ok;
+  }
+}
+
+function doLogin(r){
+  role=r;
+  const n=r==='patient'?document.getElementById('lp-name').value:document.getElementById('ld-name').value;
+  loggedName=n.trim();
+  const av=document.getElementById('wh-av');if(av)av.textContent=loggedName.charAt(0).toUpperCase();
+  const nm=document.getElementById('wh-name');if(nm)nm.textContent=loggedName.split(' ')[0];
+  const rl=document.getElementById('wh-role');
+  if(rl)rl.textContent=r==='doctor'?(lang==='es'?'Doctor':'Doctor'):(lang==='es'?'Paciente':'Patient');
+  document.getElementById('qa-patient').style.display=r==='patient'?'block':'none';
+  document.getElementById('qa-doctor').style.display=r==='doctor'?'block':'none';
+  setupNav(r);showScreen('welcome');
+  document.getElementById('nav-bar').style.display='grid';
+  applyT();
+}
+
+function setupNav(r){
+  const ic2=document.getElementById('nic-2'),lbl2=document.getElementById('nl-2');
+  const ic3=document.getElementById('nic-3'),lbl3=document.getElementById('nl-3');
+  if(r==='doctor'){
+    ic2.innerHTML='<rect x="7" y="2" width="8" height="5" rx="1" stroke="currentColor" stroke-width="2"/><path d="M5 7h12v12a2 2 0 01-2 2H7a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="2"/><path d="M9 13h4M11 11v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
+    lbl2.textContent=t('nl2D');
+    ic3.innerHTML='<path d="M17 20v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M23 20v-2a4 4 0 00-3-3.87" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
+    lbl3.textContent=t('nl3D');
+  } else {
+    ic2.innerHTML='<rect x="3" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 10h16" stroke="currentColor" stroke-width="2"/><path d="M8 2v3M14 2v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 14l2.5 2.5L15 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
+    lbl2.textContent=t('nl2P');
+    ic3.innerHTML='<ellipse cx="11" cy="11" rx="8" ry="4.5" transform="rotate(-35 11 11)" stroke="currentColor" stroke-width="2"/><line x1="5" y1="7.5" x2="17" y2="14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
+    lbl3.textContent=t('nl3P');
+  }
+}
+
+const noNav=['splash','role','login-patient','login-doctor'];
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const s=document.getElementById('screen-'+id);
+  if(s){s.classList.add('active');s.scrollTop=0;}
+  const showNav=!noNav.includes(id);
+  if(role)document.getElementById('nav-bar').style.display=showNav?'grid':'none';
+}
+
+function navTo(name){
+  if(name==='rx'&&role==='patient')return;
+  if(name==='patients'&&role==='patient')return;
+  if(name==='meds'&&role==='doctor')return;
+  if(name==='tracker'&&role==='doctor'){navTo('patients');return;}
+  showScreen(name);highlightNav(name);
+}
+function navTab2(){role==='doctor'?navTo('rx'):navTo('tracker');}
+function navTab3(){role==='doctor'?navTo('patients'):navTo('meds');}
+
+function highlightNav(name){
+  ['ntab-live','ntab-2','ntab-3','ntab-appt'].forEach(id=>document.getElementById(id).classList.remove('active'));
+  if(name==='live')document.getElementById('ntab-live').classList.add('active');
+  else if(name==='tracker'||name==='rx')document.getElementById('ntab-2').classList.add('active');
+  else if(name==='meds'||name==='patients')document.getElementById('ntab-3').classList.add('active');
+  else if(name==='appt')document.getElementById('ntab-appt').classList.add('active');
+}
+
+let listening=false;
+function toggleListen(){
+  listening=!listening;
+  const btn=document.getElementById('rec-btn'),dot=document.getElementById('rec-dot');
+  btn.classList.toggle('rec',listening);dot.classList.toggle('blink',listening);
+  document.getElementById('rec-lbl').textContent=listening?t('recStop'):t('recStart');
+  ['sp-listen','sp-trans','sp-save'].forEach(id=>document.getElementById(id).classList.remove('on'));
+  ['sd-listen','sd-trans','sd-save'].forEach(id=>document.getElementById(id).classList.remove('pulse'));
+  if(listening){
+    document.getElementById('sp-listen').classList.add('on');document.getElementById('sd-listen').classList.add('pulse');
+    setTimeout(()=>{document.getElementById('sp-trans').classList.add('on');document.getElementById('sd-trans').classList.add('pulse');},1200);
+    setTimeout(()=>{document.getElementById('sp-save').classList.add('on');document.getElementById('sd-trans').classList.remove('pulse');},2800);
+  }
+}
+
+const segGrps={m:[0,1],a:[2],e:[3],n:[4]};
+function toggleDose(i){
+  lastDoses=[...doses];doses[i]=!doses[i];renderDose(i);updateProg();showSnack(t('snackMsg'));
+}
+function renderDose(i){
+  const el=document.getElementById('med-'+i);if(!el)return;
+  el.setAttribute('aria-checked',doses[i]?'true':'false');
+  const c=document.getElementById('chk-'+i);
+  if(c){c.classList.toggle('done',doses[i]);c.innerHTML=doses[i]?'<svg width="14" height="14" fill="none"><path d="M2.5 7.5l3 3 5.5-5.5" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg>':'';}
+}
+function updateProg(){
+  const tk=doses.filter(Boolean).length;
+  document.getElementById('h-num').textContent=tk+'/5';
+  const circ=document.getElementById('prog-circle');
+  if(circ){const tot=163.4;circ.setAttribute('stroke-dashoffset',tot-(tot*(tk/5)));}
+  Object.entries(segGrps).forEach(([k,ids])=>{
+    const t2=ids.filter(i=>doses[i]).length;
+    const el=document.getElementById('dp-'+k);if(el)el.textContent=t2+'/'+ids.length;
+  });
+}
+function doUndo(){
+  if(lastDoses){doses=[...lastDoses];for(let i=0;i<5;i++)renderDose(i);updateProg();lastDoses=null;}
+  document.getElementById('snackbar').classList.remove('show');
+}
+
+function showRxSnack(msg){
+  const el=document.getElementById('snackbar-rx');
+  if(!el)return;
+  document.getElementById('snack-rx-msg').textContent=msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),4000);
+}
+function showSnack(msg){
+  clearTimeout(snackTmr);
+  document.getElementById('snack-msg').textContent=msg;
+  document.getElementById('snackbar').classList.add('show');
+  snackTmr=setTimeout(()=>document.getElementById('snackbar').classList.remove('show'),4000);
+}
+
+function rxGoBack(){if(rxStep===0)navTo('welcome');else rxNext(rxStep-1);}
+function rxNext(step){
+  for(let i=0;i<4;i++){const s=document.getElementById('rx-s'+i);if(s)s.style.display='none';}
+  rxStep=step;
+  const el=document.getElementById('rx-s'+step);
+  el.style.display='flex';el.style.flexDirection='column';
+  for(let i=0;i<4;i++){const d=document.getElementById('sd'+i);if(d)d.className='step-dot'+(i<step?' dn':i===step?' act':'');}
+  const sl=document.getElementById('rx-stlbl');
+  if(sl)sl.textContent=(lang==='es'?'Paso ':'Step ')+(step+1)+' / 4';
+}
+function chkRx(step){
+  if(step===0){const ok=document.getElementById('rx-name').value.trim()&&document.getElementById('rx-dob').value.trim()&&document.getElementById('rx-id').value.trim();document.getElementById('rx-n0').disabled=!ok;}
+  if(step===1){const ok=document.getElementById('rx-drug').value&&document.getElementById('rx-qty').value;document.getElementById('rx-n1').disabled=!ok;}
+  if(step===2){const ok=segs.length>0&&document.getElementById('rx-dur').value;document.getElementById('rx-n2').disabled=!ok;}
+}
+function togSeg(el,seg){
+  const idx=segs.indexOf(seg);
+  if(idx>-1){segs.splice(idx,1);el.classList.remove('sel');el.setAttribute('aria-pressed','false');}
+  else{segs.push(seg);el.classList.add('sel');el.setAttribute('aria-pressed','true');}
+  const note=document.getElementById('seg-note');
+  if(segs.includes('Dinner')){note.textContent=t('segNote');note.style.display='block';}else{note.style.display='none';}
+  chkRx(2);
+}
+function openRxConfirm(){
+  document.getElementById('cv-pt').textContent=document.getElementById('rx-name').value||'—';
+  document.getElementById('cv-dr').textContent=document.getElementById('rx-drug').value||'—';
+  document.getElementById('cv-qt').textContent=document.getElementById('rx-qty').value?(document.getElementById('rx-qty').value+' tablets'):'—';
+  document.getElementById('cv-sc').textContent=segs.length?segs.join(', '):'—';
+  document.getElementById('cv-du').textContent=document.getElementById('rx-dur').value?(document.getElementById('rx-dur').value+' days'):'—';
+  document.getElementById('rx-confirm-ov').classList.add('open');
+}
+function submitRx(){
+  closeSheet('rx-confirm-ov');showSnack(t('snackMsg'));rxNext(0);
+  ['rx-name','rx-dob','rx-id','rx-qty','rx-dur','rx-notes','rx-allerg'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('rx-drug').value='';segs=[];
+  document.querySelectorAll('.chip.sel').forEach(c=>{c.classList.remove('sel');c.setAttribute('aria-pressed','false');});
+  document.getElementById('rx-n0').disabled=true;document.getElementById('rx-n1').disabled=true;document.getElementById('rx-n2').disabled=true;
+  navTo('welcome');
+}
+
+const ptData={
+  alvarez:{initials:'MA',name:'Alvarez, María',dob:'15/06/1978',age:'47',gender:'F',id:'#MX-001',blood:'O+',status:'Active',allergies:['Penicillin'],conditions:['Type 2 Diabetes','Hypertension'],meds:[{name:'Metformin 850mg',dose:'Twice a day · morning & evening'},{name:'Lisinopril 10mg',dose:'Once a day · morning'}],note:'A1C reduced 8.1 → 7.4 in 30 days. Monitor kidney function next visit.'},
+  garcia:{initials:'CG',name:'García, Carlos',dob:'03/11/1965',age:'60',gender:'M',id:'#MX-002',blood:'A+',status:'Active',allergies:['Aspirin'],conditions:['Coronary Artery Disease','Hyperlipidemia'],meds:[{name:'Atorvastatin 20mg',dose:'Once a day · at bedtime'}],note:'LDL at 112 mg/dL — target below 100. Consider increasing dose.'},
+  lopez:{initials:'SL',name:'López, Sofía',dob:'22/04/1990',age:'35',gender:'F',id:'#MX-003',blood:'B-',status:'New',allergies:[],conditions:['Anxiety','GERD'],meds:[{name:'Omeprazole 20mg',dose:'Once a day · before breakfast'}],note:'New patient. First visit March 20. Confirm GERD diagnosis.'},
+  ramirez:{initials:'JR',name:'Ramírez, Jorge',dob:'08/09/1982',age:'43',gender:'M',id:'#MX-004',blood:'AB+',status:'Pending',allergies:['Codeine','Latex'],conditions:['Asthma','Obesity'],meds:[{name:'Salbutamol 100mcg',dose:'As needed · inhaler'}],note:'Pending spirometry results from March 12. Follow up by phone.'},
+  vega:{initials:'LV',name:'Vega, Laura',dob:'30/01/1957',age:'69',gender:'F',id:'#MX-005',blood:'O-',status:'Active',allergies:['Ibuprofen','NSAIDs'],conditions:['Osteoporosis','Type 2 Diabetes','Hypertension'],meds:[{name:'Metformin 850mg',dose:'Twice a day · morning & evening'},{name:'Alendronate 70mg',dose:'Once a week · Monday morning'},{name:'Lisinopril 10mg',dose:'Once a day · morning'}],note:'Bone density improving. Watch for Lisinopril + potassium interactions.'},
+};
+function openPt(k){
+  const p=ptData[k];if(!p)return;
+  document.getElementById('pd-av').textContent=p.initials;
+  document.getElementById('pd-name').textContent=p.name;
+  document.getElementById('pd-sub').textContent='DOB '+p.dob+' · Age '+p.age+' · '+p.id;
+  const alHtml=p.allergies.length?p.allergies.map(a=>`<span class="allergy">⚠ ${a}</span>`).join(' '):'<span style="font-size:14px;color:var(--on-s3)">None reported</span>';
+  const condHtml=p.conditions.map(c=>`<span class="chip tonal" style="margin-bottom:4px">${c}</span>`).join(' ');
+  const medsHtml=p.meds.map(m=>`<div style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:var(--surface-3);border-radius:var(--r-md);margin-bottom:6px"><svg width="18" height="18" fill="none" style="flex-shrink:0;margin-top:1px"><ellipse cx="9" cy="9" rx="7" ry="3.5" transform="rotate(-35 9 9)" stroke="var(--primary)" stroke-width="1.6"/><line x1="4.5" y1="6" x2="13.5" y2="12" stroke="var(--primary)" stroke-width="1.6" stroke-linecap="round"/></svg><div><div style="font-size:15px;font-weight:500">${m.name}</div><div style="font-size:13px;color:var(--on-s3)">${m.dose}</div></div></div>`).join('');
+  document.getElementById('pd-body').innerHTML=`
+    <div style="height:8px"></div>
+    <div class="stat-grid"><div class="stat-cell"><div class="stat-lbl">Blood</div><div class="stat-val">${p.blood}</div></div><div class="stat-cell"><div class="stat-lbl">Gender</div><div class="stat-val">${p.gender==='F'?'Female':'Male'}</div></div><div class="stat-cell"><div class="stat-lbl">Status</div><div class="stat-val" style="font-size:13px">${p.status}</div></div></div>
+    <div style="margin-bottom:14px"><div class="sec-label">Conditions</div><div style="display:flex;flex-wrap:wrap;gap:6px">${condHtml}</div></div>
+    <div style="margin-bottom:14px"><div class="sec-label" style="color:var(--error)">Allergies</div><div style="display:flex;flex-wrap:wrap;gap:6px">${alHtml}</div></div>
+    <div style="margin-bottom:14px"><div class="sec-label">Current Medicines</div>${medsHtml}</div>
+    <div style="margin-bottom:16px"><div class="sec-label">Doctor's Note</div><div style="font-size:14px;color:var(--on-s2);line-height:1.6;background:var(--surface-3);padding:14px;border-radius:var(--r-md);border-left:3px solid var(--primary)">${p.note}</div></div>
+    <button class="btn btn-filled btn-sm" onclick="closeSheet('pt-ov');navTo('rx');setTimeout(()=>{document.getElementById('rx-name').value='${p.name}';document.getElementById('rx-dob').value='${p.dob}';document.getElementById('rx-id').value='${p.id.replace('#','')}';chkRx(0);},100)"><span>${t('pdRxBtn')}</span></button>
+    <div style="height:8px"></div>`;
+  document.getElementById('pt-ov').classList.add('open');
+}
+function filterPt(){
+  const q=document.getElementById('pt-search').value.toLowerCase();
+  document.querySelectorAll('#pt-list .list-item').forEach(r=>{
+    const n=r.getAttribute('data-name')||'';
+    r.closest('.md-card').style.display=(!q||n.includes(q))?'':'none';
+  });
+}
+
+const medData={
+  'Metformin 850mg':{
+    en:{generic:'Metformin HCl',cls:'Biguanide / Antidiabetic',sched:'With breakfast + With dinner',dur:'30 days · ongoing',about:'Metformin helps your body use insulin more effectively and reduces excess sugar from the liver. It is the most commonly prescribed tablet for type 2 diabetes.',howTo:'Always take this tablet with food — breakfast or dinner. Do not crush it. Drink a full glass of water.',effects:['Upset stomach (usually goes away)','Loose stools at first','Metallic taste in mouth'],warnings:['Tell your doctor before any X-ray with dye','Do not take if your kidneys are not working well','Check your blood sugar regularly']},
+    es:{generic:'Metformina HCl',cls:'Biguanida / Antidiabético',sched:'Con el desayuno + Con la cena',dur:'30 días · en curso',about:'La metformina ayuda a su cuerpo a usar la insulina de manera más efectiva y reduce el exceso de azúcar del hígado. Es la tableta más recetada para la diabetes tipo 2.',howTo:'Siempre tome esta tableta con alimentos — desayuno o cena. No la triture. Beba un vaso lleno de agua.',effects:['Malestar estomacal (generalmente desaparece)','Diarrea al principio','Sabor metálico en la boca'],warnings:['Dígale a su médico antes de cualquier estudio con contraste','No tome si sus riñones no funcionan bien','Controle su azúcar en sangre regularmente']},
+  },
+  'Amoxicillin 500mg':{
+    en:{generic:'Amoxicillin trihydrate',cls:'Antibiotic',sched:'With breakfast, after lunch, with dinner',dur:'7 days · completed',about:'Amoxicillin is a common antibiotic that fights bacterial infections. It is used for throat, chest, ear, and urinary infections.',howTo:'Take every 8 hours — you can take it with or without food. Always finish the full course even if you feel better.',effects:['Loose stools','Mild nausea','Skin rash (stop if it gets worse)'],warnings:['Tell your doctor immediately if you are allergic to penicillin','Stop if you get hives or trouble breathing','See your doctor if you feel worse after 3 days']},
+    es:{generic:'Amoxicilina trihidrato',cls:'Antibiótico',sched:'Con desayuno, almuerzo y cena',dur:'7 días · completado',about:'La amoxicilina es un antibiótico común que combate infecciones bacterianas. Se usa para infecciones de garganta, pecho, oído y vías urinarias.',howTo:'Tome cada 8 horas — puede tomarlo con o sin alimentos. Siempre termine el tratamiento completo aunque se sienta mejor.',effects:['Diarrea leve','Náuseas leves','Sarpullido (suspenda si empeora)'],warnings:['Dígale a su médico de inmediato si es alérgico a la penicilina','Suspenda si le aparece urticaria o tiene dificultad para respirar','Consulte a su médico si se siente peor después de 3 días']},
+  },
+  'Lisinopril 10mg':{
+    en:{generic:'Lisinopril',cls:'Blood Pressure Medicine',sched:'With breakfast (morning)',dur:'90 days · ongoing',about:'Lisinopril relaxes your blood vessels so your heart does not have to work as hard. It is used to lower blood pressure and protect your heart.',howTo:'Take once every morning at the same time. You can take it with or without food. Never stop suddenly — ask your doctor first.',effects:['Dry cough (very common)','Dizziness when standing up','Tiredness'],warnings:['Do NOT take if you are pregnant','Stop immediately if your face or throat swells','Have your blood checked regularly for potassium levels']},
+    es:{generic:'Lisinopril',cls:'Medicamento para la presión',sched:'Con el desayuno (mañana)',dur:'90 días · en curso',about:'El lisinopril relaja sus vasos sanguíneos para que su corazón no tenga que trabajar tan fuerte. Se usa para bajar la presión y proteger el corazón.',howTo:'Tómelo una vez cada mañana a la misma hora. Puede tomarlo con o sin alimentos. Nunca lo suspenda de golpe — consulte a su médico primero.',effects:['Tos seca (muy frecuente)','Mareos al pararse','Cansancio'],warnings:['NO tome si está embarazada','Suspenda de inmediato si se le inflama la cara o la garganta','Hágase análisis de sangre regularmente para revisar el potasio']},
+  },
+};
+function openMedInfo(drug){
+  const entry=medData[drug];if(!entry)return;
+  const useLang=role==='doctor'?'en':lang;
+  const d=entry[useLang]||entry.en;
+  document.getElementById('mi-title').textContent=drug;
+  document.getElementById('mi-sub').textContent=d.generic+' · '+d.cls;
+  const fxHtml=d.effects.map(e=>`<span class="chip" style="margin-bottom:4px;font-size:12px">${e}</span>`).join(' ');
+  const warnHtml=d.warnings.map(w=>`<div class="mi-warn-row"><svg width="14" height="14" fill="none" style="flex-shrink:0;margin-top:2px"><path d="M7 2l5 9H2l5-9z" stroke="var(--error)" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 7v2" stroke="var(--error)" stroke-width="1.5" stroke-linecap="round"/></svg><span style="font-size:13px;color:var(--error);line-height:1.55">${w}</span></div>`).join('');
+  document.getElementById('mi-body').innerHTML=`
+    <div class="stat-grid" style="margin-bottom:14px"><div class="stat-cell"><div class="stat-lbl">When to take</div><div class="stat-val" style="font-size:13px">${d.sched}</div></div><div class="stat-cell" style="grid-column:span 2"><div class="stat-lbl">Duration</div><div class="stat-val" style="font-size:13px">${d.dur}</div></div></div>
+    <div style="margin-bottom:14px"><div class="sec-label">About this medicine</div><div style="font-size:14px;line-height:1.7;color:var(--on-s2)">${d.about}</div></div>
+    <div style="margin-bottom:14px"><div class="sec-label">How to take it</div><div style="font-size:14px;line-height:1.7;color:var(--on-s2)">${d.howTo}</div></div>
+    <div style="margin-bottom:14px"><div class="sec-label">Possible side effects</div><div class="mi-effects">${fxHtml}</div></div>
+    <div style="margin-bottom:4px"><div class="sec-label" style="color:var(--error)">Important warnings</div>${warnHtml}</div>
+    <div style="height:12px"></div>`;
+  document.getElementById('medinfo-ov').classList.add('open');
+}
+function closeMedInfo(){document.getElementById('medinfo-ov').classList.remove('open');}
+
+const scripts={
+  upcoming:{title:'General Consultation',date:'Thu Mar 19, 2026 · 10:30 AM',dur:'Scheduled',tr:[{who:'Note',txt:'This appointment has not happened yet. Here are some things to prepare.'},{who:'Q1.',txt:'Have you noticed any changes in your blood sugar or energy since starting Metformin?'},{who:'Q2.',txt:'Ask your doctor about the A1C target for the next three months.'},{who:'Q3.',txt:'Talk about any side effects you have noticed in the past 30 days.'}],meds:[]},
+  followup:{title:'Cardiology Follow-up',date:'Tue Apr 1, 2026 · 9:00 AM',dur:'Scheduled',tr:[{who:'Note',txt:'Upcoming cardiology visit. ECG results from March 14 are pending.'},{who:'Q1.',txt:'Ask about adjusting your Lisinopril dose.'},{who:'Q2.',txt:'Discuss what the ECG results mean and what comes next.'}],meds:[]},
+  past1:{title:'Diabetes Management',date:'Mon Mar 10, 2026 · 11:00 AM',dur:'28 min',tr:[{who:'Dr.',txt:'Good morning! Your A1C result came back at 7.4 — a little elevated. How have you been feeling?'},{who:'Pt.',txt:'Un poco cansada por las mañanas, pero bien. (A little tired in the mornings, but okay.)'},{who:'Dr.',txt:'That is common with blood sugar. I am going to start you on Metformin 850mg — take it twice a day, with breakfast and with dinner.'},{who:'Pt.',txt:'¿Tiene efectos secundarios? (Does it have side effects?)'},{who:'Dr.',txt:'Some stomach discomfort at first, but it usually passes. We will check your labs again in 30 days.'}],meds:[{name:'Metformin 850mg',dose:'1 tablet · twice a day',sched:['With breakfast','With dinner']}]},
+  past2:{title:'Respiratory Infection',date:'Mon Feb 22, 2026 · 8:30 AM',dur:'15 min',tr:[{who:'Dr.',txt:'You have a bacterial infection in your lungs. I am prescribing Amoxicillin 500mg — three times a day for seven days.'},{who:'Pt.',txt:'¿Cuántas veces al día? (How many times per day?)'},{who:'Dr.',txt:'Three — with breakfast, after lunch, and with dinner. Please finish the full course even when you feel better.'}],meds:[{name:'Amoxicillin 500mg',dose:'1 capsule · 3× a day · 7 days',sched:['Breakfast','Lunch','Dinner']}]},
+};
+function openScript(key){
+  const s=scripts[key];if(!s)return;
+  document.getElementById('sc-title').textContent=s.title;
+  const medsHtml=s.meds.length?`<div style="margin-bottom:14px"><div class="sec-label" style="color:var(--success)">Medicines prescribed</div>${s.meds.map(m=>`<div style="background:var(--surface-3);border-radius:var(--r-md);padding:12px 14px;margin-bottom:6px;display:flex;align-items:flex-start;gap:12px"><svg width="18" height="18" fill="none" style="flex-shrink:0;margin-top:2px"><ellipse cx="9" cy="9" rx="7" ry="3.5" transform="rotate(-35 9 9)" stroke="var(--primary)" stroke-width="1.6"/><line x1="4.5" y1="6" x2="13.5" y2="12" stroke="var(--primary)" stroke-width="1.6" stroke-linecap="round"/></svg><div><div style="font-size:15px;font-weight:500">${m.name}</div><div style="font-size:13px;color:var(--on-s3);margin-top:2px">${m.dose}</div><div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px">${m.sched.map(s=>`<span class="chip tonal" style="font-size:12px;padding:3px 10px">${s}</span>`).join('')}</div></div></div>`).join('')}</div>`:'';
+  const trHtml=s.tr.map(l=>`<div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--outline)"><span style="font-size:12px;font-weight:700;color:var(--primary);min-width:28px;padding-top:2px;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0">${l.who}</span><span style="font-size:14px;line-height:1.6;color:var(--on-surface)">${l.txt}</span></div>`).join('');
+  document.getElementById('sc-body').innerHTML=`
+    <div class="stat-grid" style="margin-bottom:14px"><div class="stat-cell"><div class="stat-lbl">Date</div><div class="stat-val" style="font-size:13px">${s.date}</div></div><div class="stat-cell"><div class="stat-lbl">Duration</div><div class="stat-val">${s.dur}</div></div><div class="stat-cell"><div class="stat-lbl">Doctor</div><div class="stat-val" style="font-size:13px">Dr. Smith</div></div></div>
+    ${medsHtml}
+    <div><div class="sec-label">Conversation transcript</div>${trHtml}</div>
+    <div style="height:16px"></div>`;
+  document.getElementById('script-ov').classList.add('open');
+}
+
+function closeSheet(id){document.getElementById(id).classList.remove('open');}
+
+/* ══════════════ GAMIFICATION + ALARM SYSTEM ══════════════════════════════ */
+const GMF = {
+  streak: 5, totalTaken: 42, xp: 210, xpNext: 300, level: 3, adherence: 96,
+  levelNames: ['Starter','Apprentice','Consistent','Health Hero','Champion','Legend'],
+  todayWins: [],
+};
+
+const alarms = [
+  {id:'a0',drug:'Metformin 850mg',  dose:'1 tablet · with breakfast',time:'06:00',enabled:false,snoozeMin:10,timeoutId:null,doseIdx:0},
+  {id:'a1',drug:'Lisinopril 10mg',  dose:'1 tablet · before eating', time:'08:00',enabled:false,snoozeMin:10,timeoutId:null,doseIdx:1},
+  {id:'a2',drug:'Omeprazole 20mg',  dose:'1 capsule · before lunch', time:'13:00',enabled:false,snoozeMin:10,timeoutId:null,doseIdx:2},
+  {id:'a3',drug:'Metformin 850mg',  dose:'1 tablet · with dinner',   time:'20:00',enabled:false,snoozeMin:10,timeoutId:null,doseIdx:3},
+  {id:'a4',drug:'Atorvastatin 20mg',dose:'1 tablet · before sleep',  time:'22:00',enabled:false,snoozeMin:10,timeoutId:null,doseIdx:4},
+];
+
+let activeAlarm = null;
+let activeSetIdx = null;
+let selectedSnoozeMin = 10;
+
+/* ── GMF BAR ──────────────────────────────────────────────────────────────── */
+function updateGmfBar(){
+  const pct = Math.round((GMF.xp / GMF.xpNext) * 100);
+  const bar = document.getElementById('gmf-xp-bar');
+  if(bar) bar.style.width = pct + '%';
+  const sl = document.getElementById('gmf-streak'); if(sl) sl.textContent = GMF.streak;
+  const ll = document.getElementById('gmf-level');  if(ll) ll.textContent = GMF.level;
+  const xl = document.getElementById('gmf-xp-lbl'); if(xl) xl.textContent = GMF.xp + ' XP';
+}
+
+/* ── BELL BUTTONS on dose items ───────────────────────────────────────────── */
+function syncBells(){
+  alarms.forEach((a,i)=>{
+    const btn = document.getElementById('bell-'+i);
+    if(!btn) return;
+    btn.classList.toggle('on', a.enabled);
+    btn.title = a.enabled ? 'Alarm set: '+a.time : 'Set alarm';
+  });
+}
+
+/* ── ALARM SET SHEET ─────────────────────────────────────────────────────── */
+function openAlarmSet(e, idx){
+  e.stopPropagation();
+  activeSetIdx = idx;
+  const a = alarms[idx];
+  document.getElementById('aset-title').textContent = 'Set alarm · '+a.drug;
+  document.getElementById('aset-sub').textContent = a.dose + ' · ' + a.time;
+  document.getElementById('aset-time').value = a.time;
+  const tog = document.getElementById('aset-toggle');
+  tog.checked = a.enabled;
+  document.getElementById('aset-track').style.background = a.enabled ? 'var(--primary)' : 'var(--outline)';
+  document.getElementById('aset-thumb').style.left = a.enabled ? '23px' : '3px';
+  document.getElementById('aset-status-lbl').textContent = a.enabled ? 'Active — fires at '+a.time : 'Currently off';
+  selectedSnoozeMin = a.snoozeMin;
+  document.querySelectorAll('#aset-snooze-btns .chip').forEach(b=>{
+    const v = parseInt(b.textContent);
+    b.classList.toggle('sel', v === selectedSnoozeMin);
+  });
+  document.getElementById('alarm-set-ov').classList.add('open');
+}
+function closeAlarmSet(){ document.getElementById('alarm-set-ov').classList.remove('open'); }
+
+function selectSnooze(btn, min){
+  selectedSnoozeMin = min;
+  document.querySelectorAll('#aset-snooze-btns .chip').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+function toggleDay(btn){
+  document.querySelectorAll('#aset-days .chip').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+function toggleAlarmFromSet(on){
+  document.getElementById('aset-track').style.background = on ? 'var(--primary)' : 'var(--outline)';
+  document.getElementById('aset-thumb').style.left = on ? '23px' : '3px';
+  const t = document.getElementById('aset-time').value || alarms[activeSetIdx].time;
+  document.getElementById('aset-status-lbl').textContent = on ? 'Active — fires at '+t : 'Currently off';
+}
+function saveAlarmSet(){
+  if(activeSetIdx === null) return;
+  const a = alarms[activeSetIdx];
+  a.time = document.getElementById('aset-time').value || a.time;
+  a.snoozeMin = selectedSnoozeMin;
+  a.enabled = document.getElementById('aset-toggle').checked;
+  clearAlarmTimeout(activeSetIdx);
+  if(a.enabled){
+    scheduleAlarm(activeSetIdx);
+    showBadge('⏰','Alarm set for '+a.time);
+  }
+  syncBells();
+  closeAlarmSet();
+}
+
+/* ── ALARM SCHEDULING ────────────────────────────────────────────────────── */
+function clearAlarmTimeout(i){
+  if(alarms[i].timeoutId){ clearTimeout(alarms[i].timeoutId); alarms[i].timeoutId=null; }
+}
+function scheduleAlarm(i){
+  clearAlarmTimeout(i);
+  const a = alarms[i];
+  const [hh,mm] = a.time.split(':').map(Number);
+  const now = new Date();
+  const fire = new Date(now.getFullYear(),now.getMonth(),now.getDate(),hh,mm,0);
+  let ms = fire - now;
+  if(ms <= 0) ms = 4000; // demo: fire in 4s if time passed
+  a.timeoutId = setTimeout(()=>fireAlarm(i), ms);
+}
+
+/* ── ALARM FIRE ──────────────────────────────────────────────────────────── */
+function fireAlarm(i){
+  const a = alarms[i];
+  activeAlarm = i;
+  const xpGain = 10 + (GMF.streak >= 7 ? 5 : 0);
+  document.getElementById('alarm-drug-name').textContent = a.drug;
+  document.getElementById('alarm-drug-sub').textContent  = a.dose + ' · ' + a.time;
+  document.getElementById('alarm-streak-num').textContent = '🔥 '+GMF.streak;
+  document.getElementById('alarm-total-num').textContent  = GMF.totalTaken;
+  document.getElementById('alarm-pct-num').textContent    = GMF.adherence+'%';
+  document.getElementById('alarm-level').textContent      = GMF.level;
+  document.getElementById('alarm-xp-gain').textContent   = xpGain;
+  document.getElementById('alarm-snooze-lbl').textContent = 'Snooze '+a.snoozeMin+' min';
+  const pct = Math.round((GMF.xp/GMF.xpNext)*100);
+  document.getElementById('alarm-xp-bar').style.width = pct+'%';
+  document.getElementById('alarm-xp-label').textContent = GMF.xp+' / '+GMF.xpNext+' XP';
+  document.getElementById('alarm-ov').classList.add('open');
+  // pulse ring animation
+  const ring = document.getElementById('alarm-ring-pulse');
+  if(ring){ ring.classList.remove('ring-pulse'); void ring.offsetWidth; ring.classList.add('ring-pulse'); }
+}
+
+/* ── CONFIRM TAKEN → opens accomplishment panel ──────────────────────────── */
+function confirmAlarmTaken(){
+  document.getElementById('alarm-ov').classList.remove('open');
+  const i = activeAlarm;
+  const a = i !== null ? alarms[i] : null;
+
+  // Mark dose
+  if(i !== null && i < doses.length && !doses[i]){ doses[i]=true; renderDoses(); }
+
+  // Compute XP + streak
+  GMF.streak++;
+  GMF.totalTaken++;
+  GMF.adherence = Math.min(100, Math.round(GMF.totalTaken / (GMF.totalTaken+1) * 97));
+  const xpGain = 10 + (GMF.streak >= 7 ? 5 : 0);
+  GMF.xp += xpGain;
+  let leveledUp = false;
+  if(GMF.xp >= GMF.xpNext){
+    GMF.xp -= GMF.xpNext;
+    GMF.level = Math.min(GMF.level+1, 5);
+    GMF.xpNext = Math.round(GMF.xpNext*1.4);
+    leveledUp = true;
+  }
+  updateGmfBar();
+  syncBells();
+  activeAlarm = null;
+
+  // Log win
+  const winLabel = a ? a.drug : 'Medicine';
+  GMF.todayWins.push({label:winLabel, xp:xpGain, time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})});
+
+  // Show accomplishment panel
+  showAccomplishment(xpGain, leveledUp);
+}
+
+/* ── ACCOMPLISHMENT PANEL ────────────────────────────────────────────────── */
+function showAccomplishment(xpGain, leveledUp){
+  const ov = document.getElementById('accom-ov');
+  const pct = Math.round((GMF.xp/GMF.xpNext)*100);
+  const daysToWeekly = 7 - (GMF.streak % 7);
+
+  document.getElementById('accom-emoji').textContent = leveledUp ? '⬆️' : (GMF.streak%7===0 ? '🏅' : '✅');
+  document.getElementById('accom-title').textContent = leveledUp ? 'Level up!' : (GMF.streak%7===0 ? '7-day badge!' : 'Dose confirmed!');
+  document.getElementById('accom-sub').textContent = leveledUp
+    ? 'You reached Level '+GMF.level+' — '+GMF.levelNames[GMF.level]+'!'
+    : 'You\'re building a great habit';
+  document.getElementById('accom-xp-gained').textContent = '+'+xpGain+' XP';
+  document.getElementById('accom-xp-total').textContent = GMF.xp+' XP';
+  document.getElementById('accom-level').textContent = GMF.level;
+  document.getElementById('accom-level-name').textContent = GMF.levelNames[Math.min(GMF.level,5)];
+  document.getElementById('accom-xp-bar-lbl').textContent = GMF.xp+' / '+GMF.xpNext;
+  document.getElementById('accom-streak').textContent = GMF.streak;
+  document.getElementById('accom-streak-sub').textContent = daysToWeekly===1
+    ? 'Just 1 more day for your weekly badge!'
+    : daysToWeekly+' days to your weekly badge!';
+
+  // Today's wins list
+  const winsEl = document.getElementById('accom-wins-list');
+  winsEl.innerHTML = GMF.todayWins.map(w=>
+    `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface-3);border-radius:var(--r-sm)">
+      <div style="width:7px;height:7px;border-radius:50%;background:var(--success);flex-shrink:0"></div>
+      <span style="flex:1;font-size:13px;font-weight:500;color:var(--on-surface)">${w.label}</span>
+      <span style="font-size:12px;color:var(--on-s3)">${w.time}</span>
+      <span style="font-size:12px;font-weight:700;color:var(--primary)">+${w.xp} XP</span>
+    </div>`
+  ).join('');
+
+  // Animate XP bar after paint
+  document.getElementById('accom-xp-bar').style.width = '0%';
+  ov.style.display = 'flex';
+  ov.classList.add('open');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    document.getElementById('accom-xp-bar').style.width = pct+'%';
+  }));
+
+  // Confetti burst
+  spawnConfetti('accom-confetti');
+}
+
+function closeAccom(){
+  const ov = document.getElementById('accom-ov');
+  ov.classList.remove('open');
+  setTimeout(()=>{ ov.style.display='none'; }, 300);
+}
+
+/* ── CONFETTI ────────────────────────────────────────────────────────────── */
+function spawnConfetti(containerId){
+  const c = document.getElementById(containerId);
+  if(!c) return;
+  c.innerHTML = '';
+  const colors = ['#09287B','#00A8BB','#0A9316','#FF9900','#fff'];
+  for(let i=0;i<18;i++){
+    const d = document.createElement('div');
+    d.className = 'conf-dot';
+    const angle = (Math.PI*2/18)*i;
+    const dist = 40+Math.random()*50;
+    d.style.cssText = `left:${44+Math.random()*12}%;top:${30+Math.random()*20}%;background:${colors[i%colors.length]};`
+      +`--cx:${Math.cos(angle)*dist}px;--cy:${Math.sin(angle)*dist}px;`
+      +`animation-delay:${Math.random()*0.2}s;animation-duration:${0.6+Math.random()*0.3}s`;
+    c.appendChild(d);
+  }
+}
+
+/* ── DISMISS / SNOOZE ────────────────────────────────────────────────────── */
+function dismissAlarm(){
+  const i = activeAlarm;
+  document.getElementById('alarm-ov').classList.remove('open');
+  if(i !== null){
+    const snoozeMs = alarms[i].snoozeMin * 60 * 1000;
+    alarms[i].timeoutId = setTimeout(()=>fireAlarm(i), snoozeMs);
+    showBadge('😴','Snoozed '+alarms[i].snoozeMin+' min');
+  }
+  activeAlarm = null;
+}
+
+/* ── BADGE TOAST ─────────────────────────────────────────────────────────── */
+function showBadge(emoji, msg){
+  const toast = document.getElementById('badge-toast');
+  if(!toast) return;
+  document.getElementById('badge-emoji').textContent = emoji;
+  document.getElementById('badge-msg').textContent = msg;
+  toast.style.transform = 'translateX(-50%) translateY(0)';
+  setTimeout(()=>{ toast.style.transform = 'translateX(-50%) translateY(120px)'; }, 2800);
+}
+
+/* ── RENDER DOSES ────────────────────────────────────────────────────────── */
+function renderDoses(){
+  for(let i=0;i<doses.length;i++){
+    const chk=document.getElementById('chk-'+i);
+    if(!chk)continue;
+    chk.classList.toggle('done',doses[i]);
+    chk.innerHTML=doses[i]?'<svg width="14" height="14" fill="none"><path d="M2.5 7.5l3 3 5.5-5.5" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg>':'';
+    const item=document.getElementById('med-'+i);
+    if(item)item.setAttribute('aria-checked',doses[i]?'true':'false');
+  }
+  const taken=doses.filter(Boolean).length,total=doses.length;
+  const hn=document.getElementById('h-num');if(hn)hn.textContent=taken+'/'+total;
+  const circ=document.getElementById('prog-circle');
+  if(circ){const dash=163.4;circ.setAttribute('stroke-dashoffset',dash-(dash*(taken/total)));}
+  Object.entries({m:[0,1],a:[2],e:[3],n:[4]}).forEach(([k,ids])=>{
+    const t2=ids.filter(i=>doses[i]).length;
+    const el=document.getElementById('dp-'+k);if(el)el.textContent=t2+'/'+ids.length;
+  });
+}
+
+// Init
+document.addEventListener('DOMContentLoaded',()=>{ updateGmfBar(); syncBells(); });
+updateGmfBar(); syncBells();
+
+applyT();
+</script>
+</body>
+</html>
